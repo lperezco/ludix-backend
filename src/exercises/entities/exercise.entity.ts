@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
 import { ExerciseType } from '../../exercise-types/entities/exercise-type.entity';
 import { Favorite } from '../../favorites/entities/favorite.entity';
 import { ExerciseHistory } from '../../exercise-history/entities/exercise-history.entity';

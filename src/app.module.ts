@@ -15,6 +15,7 @@ import { ChallengesModule } from './challenges/challenges.module';
 import { PostsModule } from './posts/posts.module';
 import { ReportsModule } from './reports/reports.module';
 import { BlockedUsersModule } from './blocked-users/blocked-users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { BlockedUsersModule } from './blocked-users/blocked-users.module';
     PostsModule,
     ReportsModule,
     BlockedUsersModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

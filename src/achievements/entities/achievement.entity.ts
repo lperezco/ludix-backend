@@ -15,6 +15,12 @@ export class Achievement {
   @Column()
   requirement: string;
 
+  @Column({ nullable: true })
+  icon: string;
+
+  @Column({ default: 0 })
+  points: number;
+
   @OneToMany(() => UserAchievement, (ua) => ua.achievement)
   userAchievements: UserAchievement[];
 }

@@ -10,7 +10,6 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
-  Query,
   Patch,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -25,140 +24,79 @@ import { UpdateReportDto } from './dto/update-report.dto';
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
-  /**
-   * Obtener todos los reportes (con filtros y paginación)
-   * GET /reports?status=pendiente&page=1&limit=10
-   */
   @Get()
-  @Roles('admin', 'moderator')
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
-  async findAll(
-    @Query('status') status?: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-  ) {
-    return this.reportsService.findAll(
-      status,
-      page ? parseInt(page) : 1,
-      limit ? parseInt(limit) : 10,
-    );
+  findAll() {
+    return this.reportsService.findAll();
   }
 
-  /**
-   * Obtener estadísticas de reportes
-   * GET /reports/stats
-   */
-  @Get('stats')
-  @Roles('admin', 'moderator')
-  @HttpCode(HttpStatus.OK)
-  async getStats() {
-    return this.reportsService.getStats();
-  }
-
-  /**
-   * Obtener reportes por usuario
-   * GET /reports/user/:userId
-   */
   @Get('user/:userId')
-  @Roles('admin', 'moderator')
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
-  async findByUser(@Param('userId', ParseIntPipe) userId: number) {
+  findByUser(@Param('userId', ParseIntPipe) userId: number) {
     return this.reportsService.findByUser(userId);
   }
 
-  /**
-   * Obtener reportes por post
-   * GET /reports/post/:postId
-   */
   @Get('post/:postId')
-  @Roles('admin', 'moderator')
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
-  async findByPost(@Param('postId', ParseIntPipe) postId: number) {
+  findByPost(@Param('postId', ParseIntPipe) postId: number) {
     return this.reportsService.findByPost(postId);
   }
 
-  /**
-   * Obtener reportes por estado
-   * GET /reports/status/:status
-   */
   @Get('status/:status')
-  @Roles('admin', 'moderator')
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
-  async findByStatus(@Param('status') status: string) {
+  findByStatus(@Param('status') status: string) {
     return this.reportsService.findByStatus(status);
   }
 
-  /**
-   * Obtener un reporte por ID
-   * GET /reports/:id
-   */
   @Get(':id')
-  @Roles('admin', 'moderator')
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
-  async findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.reportsService.findById(id);
   }
 
-  /**
-   * Crear un nuevo reporte (cualquier usuario autenticado)
-   * POST /reports
-   */
   @Post()
-  @Roles('admin', 'moderator', 'user')
+  @Roles('admin', 'user')
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createReportDto: CreateReportDto) {
+  create(@Body() createReportDto: CreateReportDto) {
     return this.reportsService.create(createReportDto);
   }
 
-  /**
-   * Actualizar un reporte
-   * PUT /reports/:id
-   */
-  @Put(':id')
-  @Roles('admin', 'moderator')
+  @Patch(':id/status')
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
-  async update(
+  updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('status') status: string,
+  ) {
+    return this.reportsService.updateStatus(id, status);
+  }
+
+  @Put(':id')
+  @Roles('admin')
+  @HttpCode(HttpStatus.OK)
+  update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateReportDto: UpdateReportDto,
   ) {
     return this.reportsService.update(id, updateReportDto);
   }
 
-  /**
-   * Actualizar estado de un reporte (acción rápida)
-   * PATCH /reports/:id/status
-   */
-  @Patch(':id/status')
-  @Roles('admin', 'moderator')
-  @HttpCode(HttpStatus.OK)
-  async updateStatus(
-    @Param('id', ParseIntPipe) id: number,
-    @Body('status') status: string,
-    @Body('moderatorComment') moderatorComment?: string,
-    @Body('reviewedBy') reviewedBy?: number,
-  ) {
-    return this.reportsService.updateStatus(id, status, moderatorComment, reviewedBy);
-  }
-
-  /**
-   * Eliminar un reporte
-   * DELETE /reports/:id
-   */
   @Delete(':id')
   @Roles('admin')
   @HttpCode(HttpStatus.OK)
-  async remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.reportsService.remove(id);
   }
 
-  /**
-   * Eliminar todos los reportes de un post
-   * DELETE /reports/post/:postId
-   */
   @Delete('post/:postId')
   @Roles('admin')
   @HttpCode(HttpStatus.OK)
-  async removeByPost(@Param('postId', ParseIntPipe) postId: number) {
+  removeByPost(@Param('postId', ParseIntPipe) postId: number) {
     return this.reportsService.removeByPost(postId);
   }
 }

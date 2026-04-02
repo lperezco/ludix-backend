@@ -22,6 +22,18 @@ export class Profile {
   @Column()
   creativeAreaId: number;
 
+  @Column({ nullable: true, type: 'text' })
+  bio: string;
+
+  @Column({ nullable: true })
+  avatarUrl: string;
+
+  @Column({ nullable: true })
+  location: string;
+
+  @Column({ nullable: true })
+  socialLinks: string;
+
   @OneToMany(() => Post, (post) => post.profile)
   posts: Post[];
 }

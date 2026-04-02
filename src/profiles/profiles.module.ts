@@ -7,9 +7,9 @@ import { User } from '../users/entities/user.entity';
 import { CreativeArea } from '../creative-areas/entities/creative-area.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Profile, User, CreativeArea]), // 👈 Agregamos User y CreativeArea
-  ],
-  controllers: [ProfilesController],  
-  exports: [ProfilesService],         
-export class ProfilesModule: {}
+  imports: [TypeOrmModule.forFeature([Profile, User, CreativeArea])],
+  controllers: [ProfilesController],
+  providers: [ProfilesService],
+  exports: [ProfilesService],
+})
+export class ProfilesModule {}

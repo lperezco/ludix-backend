@@ -10,6 +10,9 @@ export class ExerciseType {
   @Column({ unique: true })
   type: string;
 
+  @Column({ nullable: true })
+  description: string;
+
   @OneToMany(() => Exercise, (exercise) => exercise.exerciseType)
   exercises: Exercise[];
 

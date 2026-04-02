@@ -1,26 +1,21 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreatePostDto } from './create-post.dto';
-import { IsOptional, IsString, IsInt, MaxLength, IsUrl } from 'class-validator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString, IsInt, Min, MaxLength, IsUrl } from 'class-validator';
 
-export class UpdatePostDto extends PartialType(CreatePostDto) {
-  @ApiPropertyOptional({ description: 'ID del perfil que crea el post' })
+export class UpdatePostDto {
   @IsOptional()
   @IsInt()
+  @Min(1)
   profileId?: number;
 
-  @ApiPropertyOptional({ description: 'ID del challenge asociado' })
   @IsOptional()
   @IsInt()
+  @Min(1)
   challengeId?: number;
 
-  @ApiPropertyOptional({ description: 'Contenido del post' })
   @IsOptional()
   @IsString()
   @MaxLength(2000)
   content?: string;
 
-  @ApiPropertyOptional({ description: 'URL de la imagen asociada' })
   @IsOptional()
   @IsUrl({}, { message: 'Debe ser una URL válida' })
   @MaxLength(500)

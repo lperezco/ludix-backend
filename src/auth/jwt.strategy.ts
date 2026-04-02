@@ -1,6 +1,6 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { PassportStrategy } from '@nestjs/passport';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 
@@ -10,22 +10,29 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private configService: ConfigService,
     private usersService: UsersService,
   ) {
-    const jwtSecret = configService.get<string>('JWT_SECRET');
-    if (!jwtSecret) {
-      throw new Error('JWT_SECRET no definido en variables de entorno');
-    }
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: jwtSecret,
+      secretOrKey: configService.get<string>('JWT_SECRET') || 'ludix-secret-key',
     });
   }
 
-  async validate(payload: { sub: string; email?: string; role?: string }) {
-    const user = await this.usersService.findById(Number(payload.sub));
+  async validate(payload: any) {
+    // payload contiene los datos que se pusieron en el token
+    const user = await this.usersService.findById(payload.sub);
+    
     if (!user) {
       throw new UnauthorizedException('Usuario no encontrado');
     }
-    return user;
+
+    // Retornar los datos del usuario que se adjuntarán al request
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      userTypeId: user.userTypeId,
+      userType: user.userType?.type || 'user',
+      roles: [user.userType?.type || 'user'], // Para RolesGuard
+    };
   }
 }

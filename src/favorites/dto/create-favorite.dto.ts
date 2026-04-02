@@ -1,0 +1,13 @@
+import { IsInt, IsNotEmpty, Min } from 'class-validator';
+
+export class CreateFavoriteDto {
+  @IsInt({ message: 'userId debe ser un número entero' })
+  @Min(1, { message: 'userId debe ser mayor a 0' })
+  @IsNotEmpty({ message: 'userId es requerido' })
+  userId: number;
+
+  @IsInt({ message: 'exerciseId debe ser un número entero' })
+  @Min(1, { message: 'exerciseId debe ser mayor a 0' })
+  @IsNotEmpty({ message: 'exerciseId es requerido' })
+  exerciseId: number;
+}

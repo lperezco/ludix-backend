@@ -23,10 +23,6 @@ import { UpdateUserTypeDto } from './dto/update-user-type.dto';
 export class UserTypesController {
   constructor(private readonly userTypesService: UserTypesService) {}
 
-  /**
-   * Obtener todos los tipos de usuario
-   * GET /user-types
-   */
   @Get()
   @Roles('admin')
   @HttpCode(HttpStatus.OK)
@@ -34,10 +30,6 @@ export class UserTypesController {
     return this.userTypesService.findAll();
   }
 
-  /**
-   * Obtener un tipo de usuario por ID
-   * GET /user-types/:id
-   */
   @Get(':id')
   @Roles('admin')
   @HttpCode(HttpStatus.OK)
@@ -45,10 +37,6 @@ export class UserTypesController {
     return this.userTypesService.findById(id);
   }
 
-  /**
-   * Crear un nuevo tipo de usuario
-   * POST /user-types
-   */
   @Post()
   @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
@@ -56,10 +44,6 @@ export class UserTypesController {
     return this.userTypesService.create(createUserTypeDto);
   }
 
-  /**
-   * Actualizar un tipo de usuario
-   * PUT /user-types/:id
-   */
   @Put(':id')
   @Roles('admin')
   @HttpCode(HttpStatus.OK)
@@ -70,10 +54,6 @@ export class UserTypesController {
     return this.userTypesService.update(id, updateUserTypeDto);
   }
 
-  /**
-   * Eliminar un tipo de usuario
-   * DELETE /user-types/:id
-   */
   @Delete(':id')
   @Roles('admin')
   @HttpCode(HttpStatus.OK)

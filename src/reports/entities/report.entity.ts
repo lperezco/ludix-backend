@@ -24,7 +24,7 @@ export class Report {
   @Column()
   reason: string;
 
-  @Column({ default: 'pendiente' })
+  @Column({ default: 'pending' })
   status: string;
 
   @CreateDateColumn()

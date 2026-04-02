@@ -1,38 +1,31 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateProfileDto } from './create-profile.dto';
-import { IsOptional, IsInt, IsString, MaxLength } from 'class-validator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsInt, IsString, MaxLength, Min } from 'class-validator';
 
-export class UpdateProfileDto extends PartialType(CreateProfileDto) {
-  @ApiPropertyOptional({ description: 'ID del usuario asociado' })
+export class UpdateProfileDto {
   @IsOptional()
   @IsInt()
+  @Min(1)
   userId?: number;
 
-  @ApiPropertyOptional({ description: 'ID del área creativa' })
   @IsOptional()
   @IsInt()
+  @Min(1)
   creativeAreaId?: number;
 
-  @ApiPropertyOptional({ description: 'Biografía del usuario' })
   @IsOptional()
   @IsString()
   @MaxLength(500)
   bio?: string;
 
-  @ApiPropertyOptional({ description: 'URL del avatar' })
   @IsOptional()
   @IsString()
   @MaxLength(255)
   avatarUrl?: string;
 
-  @ApiPropertyOptional({ description: 'Ubicación del usuario' })
   @IsOptional()
   @IsString()
   @MaxLength(100)
   location?: string;
 
-  @ApiPropertyOptional({ description: 'URL de redes sociales' })
   @IsOptional()
   @IsString()
   @MaxLength(255)

@@ -1,10 +1,15 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Report } from './entities/report.entity';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
-import { Post } from '../posts/entities/post.entity';
+import { Comment } from '../comments/entities/comment.entity';
 import { User } from '../users/entities/user.entity';
 
 @Injectable()
@@ -12,20 +17,22 @@ export class ReportsService {
   constructor(
     @InjectRepository(Report)
     private reportRepository: Repository<Report>,
-    @InjectRepository(Post)
-    private postRepository: Repository<Post>,
+    @InjectRepository(Comment)
+    private commentRepository: Repository<Comment>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
 
-  async create(createReportDto: CreateReportDto): Promise<Report> {
-    const { postId, reportedBy, reason, status = 'pending' } = createReportDto;
+  async create(createDto: CreateReportDto): Promise<Report> {
+    const { commentId, reportedBy, reason, status = 'pending' } = createDto;
 
-    const post = await this.postRepository.findOne({
-      where: { id: postId },
+    const comment = await this.commentRepository.findOne({
+      where: { id: commentId },
     });
-    if (!post) {
-      throw new NotFoundException(`Post con ID ${postId} no encontrado`);
+    if (!comment) {
+      throw new NotFoundException(
+        `Comentario con ID ${commentId} no encontrado`,
+      );
     }
 
     const reporter = await this.userRepository.findOne({
@@ -35,30 +42,32 @@ export class ReportsService {
       throw new NotFoundException(`Usuario con ID ${reportedBy} no encontrado`);
     }
 
-    const existingReport = await this.reportRepository.findOne({
+    // Evitar reportes duplicados pendientes del mismo usuario al mismo comentario
+    const existing = await this.reportRepository.findOne({
       where: {
-        postId,
+        commentId,
         reportedBy,
         status: 'pending',
       },
     });
-    if (existingReport) {
-      throw new ConflictException(`Ya has reportado este post. Estado: ${existingReport.status}`);
+    if (existing) {
+      throw new ConflictException(
+        'Ya has reportado este comentario y está pendiente de revisión',
+      );
     }
 
     const report = this.reportRepository.create({
-      postId,
+      commentId,
       reportedBy,
       reason,
       status,
     });
-
-    return await this.reportRepository.save(report);
+    return this.reportRepository.save(report);
   }
 
   async findAll(): Promise<Report[]> {
-    return await this.reportRepository.find({
-      relations: ['post', 'reportedByUser'],
+    return this.reportRepository.find({
+      relations: ['comment', 'reportedByUser', 'comment.user'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -66,7 +75,7 @@ export class ReportsService {
   async findById(id: number): Promise<Report> {
     const report = await this.reportRepository.findOne({
       where: { id },
-      relations: ['post', 'reportedByUser', 'post.profile', 'post.profile.user'],
+      relations: ['comment', 'reportedByUser', 'comment.user'],
     });
     if (!report) {
       throw new NotFoundException(`Reporte con ID ${id} no encontrado`);
@@ -75,30 +84,28 @@ export class ReportsService {
   }
 
   async findByUser(userId: number): Promise<Report[]> {
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-    });
+    const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
     }
-
-    return await this.reportRepository.find({
+    return this.reportRepository.find({
       where: { reportedBy: userId },
-      relations: ['post'],
+      relations: ['comment'],
       order: { createdAt: 'DESC' },
     });
   }
 
-  async findByPost(postId: number): Promise<Report[]> {
-    const post = await this.postRepository.findOne({
-      where: { id: postId },
+  async findByComment(commentId: number): Promise<Report[]> {
+    const comment = await this.commentRepository.findOne({
+      where: { id: commentId },
     });
-    if (!post) {
-      throw new NotFoundException(`Post con ID ${postId} no encontrado`);
+    if (!comment) {
+      throw new NotFoundException(
+        `Comentario con ID ${commentId} no encontrado`,
+      );
     }
-
-    return await this.reportRepository.find({
-      where: { postId },
+    return this.reportRepository.find({
+      where: { commentId },
       relations: ['reportedByUser'],
       order: { createdAt: 'DESC' },
     });
@@ -107,53 +114,55 @@ export class ReportsService {
   async findByStatus(status: string): Promise<Report[]> {
     const validStatuses = ['pending', 'reviewing', 'approved', 'rejected'];
     if (!validStatuses.includes(status)) {
-      throw new BadRequestException(`Estado inválido. Debe ser: ${validStatuses.join(', ')}`);
+      throw new BadRequestException(
+        `Estado inválido. Valores permitidos: ${validStatuses.join(', ')}`,
+      );
     }
-
-    return await this.reportRepository.find({
+    return this.reportRepository.find({
       where: { status },
-      relations: ['post', 'reportedByUser'],
+      relations: ['comment', 'reportedByUser'],
       order: { createdAt: 'ASC' },
     });
   }
 
-  async updateStatus(
-    id: number,
-    status: string,
-  ): Promise<Report> {
-    const report = await this.findById(id);
-
+  async updateStatus(id: number, status: string): Promise<Report> {
+    await this.findById(id);
     const validStatuses = ['pending', 'reviewing', 'approved', 'rejected'];
     if (!validStatuses.includes(status)) {
-      throw new BadRequestException(`Estado inválido. Debe ser: ${validStatuses.join(', ')}`);
+      throw new BadRequestException(
+        `Estado inválido. Valores permitidos: ${validStatuses.join(', ')}`,
+      );
     }
-
     await this.reportRepository.update(id, { status });
     return this.findById(id);
   }
 
-  async update(id: number, updateReportDto: UpdateReportDto): Promise<Report> {
+  async update(id: number, updateDto: UpdateReportDto): Promise<Report> {
     const report = await this.findById(id);
 
-    if (updateReportDto.postId && updateReportDto.postId !== report.postId) {
-      const post = await this.postRepository.findOne({
-        where: { id: updateReportDto.postId },
+    if (updateDto.commentId && updateDto.commentId !== report.commentId) {
+      const comment = await this.commentRepository.findOne({
+        where: { id: updateDto.commentId },
       });
-      if (!post) {
-        throw new NotFoundException(`Post con ID ${updateReportDto.postId} no encontrado`);
+      if (!comment) {
+        throw new NotFoundException(
+          `Comentario con ID ${updateDto.commentId} no encontrado`,
+        );
       }
     }
 
-    if (updateReportDto.reportedBy && updateReportDto.reportedBy !== report.reportedBy) {
+    if (updateDto.reportedBy && updateDto.reportedBy !== report.reportedBy) {
       const user = await this.userRepository.findOne({
-        where: { id: updateReportDto.reportedBy },
+        where: { id: updateDto.reportedBy },
       });
       if (!user) {
-        throw new NotFoundException(`Usuario con ID ${updateReportDto.reportedBy} no encontrado`);
+        throw new NotFoundException(
+          `Usuario con ID ${updateDto.reportedBy} no encontrado`,
+        );
       }
     }
 
-    await this.reportRepository.update(id, updateReportDto);
+    await this.reportRepository.update(id, updateDto);
     return this.findById(id);
   }
 
@@ -161,19 +170,20 @@ export class ReportsService {
     const report = await this.findById(id);
     await this.reportRepository.delete(id);
     return {
-      message: `Reporte del post ${report.postId} eliminado correctamente`,
+      message: `Reporte del comentario ${report.commentId} eliminado correctamente`,
     };
   }
 
-  async removeByPost(postId: number): Promise<{ message: string }> {
-    const reports = await this.findByPost(postId);
+  async removeByComment(commentId: number): Promise<{ message: string }> {
+    const reports = await this.findByComment(commentId);
     if (reports.length === 0) {
-      throw new NotFoundException(`No hay reportes para el post ${postId}`);
+      throw new NotFoundException(
+        `No hay reportes para el comentario ${commentId}`,
+      );
     }
-
-    const result = await this.reportRepository.delete({ postId });
+    const result = await this.reportRepository.delete({ commentId });
     return {
-      message: `Se eliminaron ${result.affected} reportes del post ${postId}`,
+      message: `Se eliminaron ${result.affected} reportes del comentario ${commentId}`,
     };
   }
 }

@@ -1,10 +1,6 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, MoreThan, LessThan, In } from 'typeorm';
+import { Repository, Between, MoreThan, LessThan } from 'typeorm';
 import { ExerciseHistory } from './entities/exercise-history.entity';
 import { CreateExerciseHistoryDto } from './dto/create-exercise-history.dto';
 import { UpdateExerciseHistoryDto } from './dto/update-exercise-history.dto';
@@ -25,7 +21,9 @@ export class ExerciseHistoryService {
   /**
    * Registrar un ejercicio completado
    */
-  async create(createExerciseHistoryDto: CreateExerciseHistoryDto): Promise<ExerciseHistory> {
+  async create(
+    createExerciseHistoryDto: CreateExerciseHistoryDto,
+  ): Promise<ExerciseHistory> {
     const { userId, exerciseId, completedAt } = createExerciseHistoryDto;
 
     // Verificar que el usuario existe
@@ -41,7 +39,8 @@ export class ExerciseHistoryService {
       where: { id: exerciseId },
     });
     if (!exercise) {
-      throw new NotFoundException(`Ejercicio con ID ${exerciseId} no encontrado`);
+      throw new NotFoundException(`
+        Ejercicio con ID ${exerciseId} no encontrado`);
     }
 
     // Crear el registro de historial
@@ -64,17 +63,22 @@ export class ExerciseHistoryService {
     exerciseId?: number,
     startDate?: Date,
     endDate?: Date,
-  ): Promise<{ data: ExerciseHistory[]; total: number; page: number; totalPages: number }> {
+  ): Promise<{
+    data: ExerciseHistory[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
     const where: any = {};
-    
+
     if (userId) {
       where.userId = userId;
     }
-    
+
     if (exerciseId) {
       where.exerciseId = exerciseId;
     }
-    
+
     if (startDate && endDate) {
       where.completedAt = Between(startDate, endDate);
     } else if (startDate) {
@@ -149,7 +153,9 @@ export class ExerciseHistoryService {
       where: { id: exerciseId },
     });
     if (!exercise) {
-      throw new NotFoundException(`Ejercicio con ID ${exerciseId} no encontrado`);
+      throw new NotFoundException(
+        `Ejercicio con ID ${exerciseId} no encontrado`,
+      );
     }
 
     return this.findAll(page, limit, undefined, exerciseId, startDate, endDate);
@@ -195,7 +201,7 @@ export class ExerciseHistoryService {
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - today.getDay());
     startOfWeek.setHours(0, 0, 0, 0);
-    
+
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 7);
 
@@ -221,18 +227,18 @@ export class ExerciseHistoryService {
     if (history.length === 0) return 0;
 
     let streak = 0;
-    let currentDate = new Date();
+    const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
-    
-    const uniqueDates = [...new Set(history.map(h => 
-      new Date(h.completedAt).toDateString()
-    ))];
+
+    const uniqueDates = [
+      ...new Set(history.map((h) => new Date(h.completedAt).toDateString())),
+    ];
 
     for (let i = 0; i < uniqueDates.length; i++) {
       const date = new Date(uniqueDates[i]);
       const expectedDate = new Date(currentDate);
       expectedDate.setDate(currentDate.getDate() - i);
-      
+
       if (date.toDateString() === expectedDate.toDateString()) {
         streak++;
       } else {
@@ -288,7 +294,7 @@ export class ExerciseHistoryService {
     // Completados por día (últimos 30 días)
     const last30Days = new Date();
     last30Days.setDate(last30Days.getDate() - 30);
-    
+
     const byDay = await this.exerciseHistoryRepository
       .createQueryBuilder('history')
       .select('DATE(history.completedAt)', 'date')
@@ -317,7 +323,7 @@ export class ExerciseHistoryService {
    */
   async getGlobalStats(): Promise<any> {
     const total = await this.exerciseHistoryRepository.count();
-    
+
     // Total de usuarios activos (que han completado al menos un ejercicio)
     const activeUsers = await this.exerciseHistoryRepository
       .createQueryBuilder('history')
@@ -340,7 +346,7 @@ export class ExerciseHistoryService {
     // Completados por día (últimos 30 días)
     const last30Days = new Date();
     last30Days.setDate(last30Days.getDate() - 30);
-    
+
     const byDay = await this.exerciseHistoryRepository
       .createQueryBuilder('history')
       .select('DATE(history.completedAt)', 'date')
@@ -361,31 +367,44 @@ export class ExerciseHistoryService {
   /**
    * Actualizar un registro
    */
-  async update(id: number, updateExerciseHistoryDto: UpdateExerciseHistoryDto): Promise<ExerciseHistory> {
+  async update(
+    id: number,
+    updateExerciseHistoryDto: UpdateExerciseHistoryDto,
+  ): Promise<ExerciseHistory> {
     const history = await this.findById(id);
 
     // Si se actualiza el userId, verificar que existe
-    if (updateExerciseHistoryDto.userId && updateExerciseHistoryDto.userId !== history.userId) {
+    if (
+      updateExerciseHistoryDto.userId &&
+      updateExerciseHistoryDto.userId !== history.userId
+    ) {
       const user = await this.userRepository.findOne({
         where: { id: updateExerciseHistoryDto.userId },
       });
       if (!user) {
-        throw new NotFoundException(`Usuario con ID ${updateExerciseHistoryDto.userId} no encontrado`);
+        throw new NotFoundException(
+          `Usuario con ID ${updateExerciseHistoryDto.userId} no encontrado`,
+        );
       }
     }
 
     // Si se actualiza el exerciseId, verificar que existe
-    if (updateExerciseHistoryDto.exerciseId && updateExerciseHistoryDto.exerciseId !== history.exerciseId) {
+    if (
+      updateExerciseHistoryDto.exerciseId &&
+      updateExerciseHistoryDto.exerciseId !== history.exerciseId
+    ) {
       const exercise = await this.exerciseRepository.findOne({
         where: { id: updateExerciseHistoryDto.exerciseId },
       });
       if (!exercise) {
-        throw new NotFoundException(`Ejercicio con ID ${updateExerciseHistoryDto.exerciseId} no encontrado`);
+        throw new NotFoundException(
+          `Ejercicio con ID ${updateExerciseHistoryDto.exerciseId} no encontrado`,
+        );
       }
     }
 
     await this.exerciseHistoryRepository.update(id, updateExerciseHistoryDto);
-    
+
     return this.findById(id);
   }
 
@@ -394,14 +413,14 @@ export class ExerciseHistoryService {
    */
   async remove(id: number): Promise<{ message: string }> {
     const history = await this.findById(id);
-    
+
     const result = await this.exerciseHistoryRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Historial con ID ${id} no encontrado`);
     }
-    
+
     return {
-      message: `Ejercicio ${history.exercise?.name || history.exerciseId} completado por ${history.user?.name || history.userId} el ${history.completedAt} eliminado correctamente`,
+      message: `Ejercicio ${history.exercise?.name || history.exerciseId} completado por ${history.user?.name || history.userId} el ${new Date(history.completedAt).toLocaleDateString('es-ES')} eliminado correctamente`,
     };
   }
 
@@ -418,7 +437,7 @@ export class ExerciseHistoryService {
     }
 
     const result = await this.exerciseHistoryRepository.delete({ userId });
-    
+
     return {
       message: `Se eliminaron ${result.affected} registros del historial del usuario ${userId}`,
     };

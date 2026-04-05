@@ -7,13 +7,14 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
-import { UserType } from '../../user-types/entities/user-type.entity';
 import { Profile } from '../../profiles/entities/profile.entity';
 import { UserAchievement } from '../../user-achievements/entities/user-achievement.entity';
 import { Favorite } from '../../favorites/entities/favorite.entity';
 import { ExerciseHistory } from '../../exercise-history/entities/exercise-history.entity';
 import { Report } from '../../reports/entities/report.entity';
 import { BlockedUser } from '../../blocked-users/entities/blocked-user.entity';
+import { Rol } from 'src/rol/entities/rol.entity';
+import { Comment } from '../../comments/entities/comment.entity';
 
 @Entity('users')
 export class User {
@@ -29,12 +30,11 @@ export class User {
   @Column()
   name: string;
 
-  @ManyToOne(() => UserType, (userType) => userType.users)
-  @JoinColumn({ name: 'userTypeId' })
-  userType: UserType;
-
+  @ManyToOne(() => Rol, (rol) => rol.users)
+  @JoinColumn({ name: 'rolId' })
+  rol: Rol;
   @Column()
-  userTypeId: number;
+  rolId: number;
 
   @OneToOne(() => Profile, (profile) => profile.user)
   profile: Profile;
@@ -56,4 +56,7 @@ export class User {
 
   @OneToMany(() => BlockedUser, (blocked) => blocked.blockedByUser)
   blockedByRecords: BlockedUser[];
+
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
 }

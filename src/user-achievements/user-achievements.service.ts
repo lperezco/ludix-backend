@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserAchievement } from './entities/user-achievement.entity';
@@ -19,18 +23,29 @@ export class UserAchievementsService {
   ) {}
 
   async create(createDto: CreateUserAchievementDto): Promise<UserAchievement> {
-    const user = await this.userRepository.findOne({ where: { id: createDto.userId } });
+    const user = await this.userRepository.findOne({
+      where: { id: createDto.userId },
+    });
     if (!user) {
-      throw new NotFoundException(`Usuario con ID ${createDto.userId} no encontrado`);
+      throw new NotFoundException(
+        `Usuario con ID ${createDto.userId} no encontrado`,
+      );
     }
 
-    const achievement = await this.achievementRepository.findOne({ where: { id: createDto.achievementId } });
+    const achievement = await this.achievementRepository.findOne({
+      where: { id: createDto.achievementId },
+    });
     if (!achievement) {
-      throw new NotFoundException(`Logro con ID ${createDto.achievementId} no encontrado`);
+      throw new NotFoundException(
+        `Logro con ID ${createDto.achievementId} no encontrado`,
+      );
     }
 
     const existing = await this.userAchievementRepository.findOne({
-      where: { userId: createDto.userId, achievementId: createDto.achievementId },
+      where: {
+        userId: createDto.userId,
+        achievementId: createDto.achievementId,
+      },
     });
     if (existing) {
       throw new ConflictException('El usuario ya tiene este logro');
@@ -52,7 +67,9 @@ export class UserAchievementsService {
       relations: ['user', 'achievement'],
     });
     if (!entity) {
-      throw new NotFoundException(`Relación usuario-logro con ID ${id} no encontrada`);
+      throw new NotFoundException(
+        `Relación usuario-logro con ID ${id} no encontrada`,
+      );
     }
     return entity;
   }
@@ -71,14 +88,20 @@ export class UserAchievementsService {
     });
   }
 
-  async hasAchievement(userId: number, achievementId: number): Promise<boolean> {
+  async hasAchievement(
+    userId: number,
+    achievementId: number,
+  ): Promise<boolean> {
     const count = await this.userAchievementRepository.count({
       where: { userId, achievementId },
     });
     return count > 0;
   }
 
-  async update(id: number, updateDto: UpdateUserAchievementDto): Promise<UserAchievement> {
+  async update(
+    id: number,
+    updateDto: UpdateUserAchievementDto,
+  ): Promise<UserAchievement> {
     await this.findById(id);
     await this.userAchievementRepository.update(id, updateDto);
     return this.findById(id);

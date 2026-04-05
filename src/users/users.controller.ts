@@ -12,40 +12,40 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
+import { PermissionsGuard } from '../common/guards/permissions.guard';
+import { Permissions } from '../common/decorators/permissions.decorator';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findById(id);
   }
 
   @Post()
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Put(':id')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -55,7 +55,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);

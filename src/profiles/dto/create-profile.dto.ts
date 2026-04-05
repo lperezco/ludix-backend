@@ -1,4 +1,11 @@
-import { IsInt, IsNotEmpty, Min, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  Min,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateProfileDto {
   @IsInt({ message: 'userId debe ser un número entero' })
@@ -18,7 +25,9 @@ export class CreateProfileDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(255, { message: 'La URL del avatar no puede exceder 255 caracteres' })
+  @MaxLength(255, {
+    message: 'La URL del avatar no puede exceder 255 caracteres',
+  })
   avatarUrl?: string;
 
   @IsOptional()
@@ -28,6 +37,8 @@ export class CreateProfileDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(255, { message: 'La URL de redes sociales no puede exceder 255 caracteres' })
+  @MaxLength(255, {
+    message: 'La URL de redes sociales no puede exceder 255 caracteres',
+  })
   socialLinks?: string;
 }

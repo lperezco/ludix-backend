@@ -1,5 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
-import { Post } from '../../posts/entities/post.entity';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+} from 'typeorm';
+import { Comment } from '../../comments/entities/comment.entity';
 import { User } from '../../users/entities/user.entity';
 
 @Entity('reports')
@@ -7,25 +14,23 @@ export class Report {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Post, (post) => post.reports)
-  @JoinColumn({ name: 'postId' })
-  post: Post;
-
+  @ManyToOne(() => Comment, (comment) => comment.reports)
+  @JoinColumn({ name: 'commentId' })
+  comment: Comment;
   @Column()
-  postId: number;
+  commentId: number;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'reportedBy' })
   reportedByUser: User;
-
   @Column()
   reportedBy: number;
 
-  @Column()
+  @Column('text')
   reason: string;
 
   @Column({ default: 'pending' })
-  status: string;
+  status: string; // pending, reviewing, approved, rejected
 
   @CreateDateColumn()
   createdAt: Date;

@@ -12,47 +12,47 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
+import { PermissionsGuard } from '../common/guards/permissions.guard';
+import { Permissions } from '../common/decorators/permissions.decorator';
 import { ProfilesService } from './profiles.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Controller('profiles')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 
   @Get()
-  @Roles('admin')
+  @Permissions('read:profiles')
   @HttpCode(HttpStatus.OK)
   findAll() {
     return this.profilesService.findAll();
   }
 
   @Get('user/:userId')
-  @Roles('admin', 'user')
+  @Permissions('read:profiles')
   @HttpCode(HttpStatus.OK)
   findByUserId(@Param('userId', ParseIntPipe) userId: number) {
     return this.profilesService.findByUserId(userId);
   }
 
   @Get(':id')
-  @Roles('admin', 'user')
+  @Permissions('read:profiles')
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.profilesService.findById(id);
   }
 
   @Post()
-  @Roles('admin')
+  @Permissions('create:profiles')
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createProfileDto: CreateProfileDto) {
     return this.profilesService.create(createProfileDto);
   }
 
   @Put(':id')
-  @Roles('admin')
+  @Permissions('update:profiles')
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -62,7 +62,7 @@ export class ProfilesController {
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Permissions('delete:profiles')
   @HttpCode(HttpStatus.OK)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.profilesService.remove(id);

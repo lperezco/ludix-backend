@@ -9,6 +9,7 @@ import {
 import { ExerciseType } from '../../exercise-types/entities/exercise-type.entity';
 import { Favorite } from '../../favorites/entities/favorite.entity';
 import { ExerciseHistory } from '../../exercise-history/entities/exercise-history.entity';
+import { Comment } from '../../comments/entities/comment.entity';
 
 @Entity('exercises')
 export class Exercise {
@@ -36,6 +37,9 @@ export class Exercise {
 
   @OneToMany(() => Favorite, (fav) => fav.exercise)
   favorites: Favorite[];
+
+  @OneToMany(() => Comment, (comment) => comment.exercise)
+  comments: Comment[];
 
   @OneToMany(() => ExerciseHistory, (eh) => eh.exercise)
   histories: ExerciseHistory[];

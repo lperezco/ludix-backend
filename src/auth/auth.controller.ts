@@ -1,101 +1,99 @@
-import { 
-  Controller, 
-  Post, 
-  Body, 
-  Get, 
-  UseGuards, 
-  Request,
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UseGuards,
   HttpCode,
   HttpStatus,
+  Request,
 } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { Roles } from './roles.decorator';
-import { RolesGuard } from './roles.guard';
+import { UserLoginDto } from './dto/user-login.dto';
+
+type AuthenticatedRequest = ExpressRequest & {
+  user: {
+    id: number;
+    email: string;
+    name: string;
+    rolId: number;
+    rol: string;
+    permissions: string[];
+  };
+};
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  /**
-   * Login de usuario
-   * POST /auth/login
-   */
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: { email: string; password: string }) {
-    const user = await this.authService.validateUser(loginDto.email, loginDto.password);
+  async login(@Body() loginDto: UserLoginDto) {
+    const user = await this.authService.validateUser(
+      loginDto.email,
+      loginDto.password,
+    );
     return this.authService.login(user);
   }
 
-  /**
-   * Registro de nuevo usuario
-   * POST /auth/register
-   */
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  async register(@Body() registerDto: {
-    email: string;
-    password: string;
-    name: string;
-    userTypeId?: number;
-  }) {
+  async register(
+    @Body()
+    registerDto: {
+      email: string;
+      password: string;
+      name: string;
+      rolId?: number;
+    },
+  ) {
     return this.authService.register(registerDto);
   }
 
-  /**
-   * Verificar token actual
-   * GET /auth/verify
-   */
   @Get('verify')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
-  async verify(@Request() req) {
-    return { 
-      valid: true, 
+  verify(@Request() req: AuthenticatedRequest) {
+    return {
+      valid: true,
       user: {
         id: req.user.id,
         email: req.user.email,
         name: req.user.name,
-        userTypeId: req.user.userTypeId,
-        userType: req.user.userType,
-      }
+        rolId: req.user.rolId,
+        rol: req.user.rol,
+        permissions: req.user.permissions,
+      },
     };
   }
 
-  /**
-   * Obtener perfil del usuario autenticado
-   * GET /auth/me
-   */
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
-  async getProfile(@Request() req) {
+  getProfile(@Request() req: AuthenticatedRequest) {
     return req.user;
   }
 
-  /**
-   * Cambiar contraseña
-   * POST /auth/change-password
-   */
   @Post('change-password')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   async changePassword(
-    @Request() req,
-    @Body() body: { oldPassword: string; newPassword: string }
+    @Request() req: AuthenticatedRequest,
+    @Body() body: { oldPassword: string; newPassword: string },
   ) {
-    return this.authService.changePassword(req.user.id, body.oldPassword, body.newPassword);
+    return this.authService.changePassword(
+      req.user.id,
+      body.oldPassword,
+      body.newPassword,
+    );
   }
 
-  /**
-   * Logout (el cliente debe eliminar el token)
-   * POST /auth/logout
-   */
   @Post('logout')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
-  async logout() {
+  logout() {
     return { message: 'Sesión cerrada correctamente' };
   }
 }

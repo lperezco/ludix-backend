@@ -7,11 +7,9 @@ import { User } from '../users/entities/user.entity';
 import { Exercise } from '../exercises/entities/exercise.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([ExerciseHistory, User, Exercise]), 
-  ],
-  controllers: [ExerciseHistoryController],  
-  providers: [ExerciseHistoryService],       
-  exports: [ExerciseHistoryService],       
+  imports: [TypeOrmModule.forFeature([ExerciseHistory, User, Exercise])],
+  controllers: [ExerciseHistoryController],
+  providers: [ExerciseHistoryService],
+  exports: [ExerciseHistoryService],
 })
 export class ExerciseHistoryModule {}

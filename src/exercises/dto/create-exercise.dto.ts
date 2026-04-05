@@ -1,4 +1,11 @@
-import { IsString, IsInt, IsNotEmpty, Min, MaxLength, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsInt,
+  IsNotEmpty,
+  Min,
+  MaxLength,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateExerciseDto {
   @IsString()
@@ -7,7 +14,9 @@ export class CreateExerciseDto {
   name: string;
 
   @IsString()
-  @MaxLength(1000, { message: 'La descripción no puede exceder 1000 caracteres' })
+  @MaxLength(1000, {
+    message: 'La descripción no puede exceder 1000 caracteres',
+  })
   @IsNotEmpty({ message: 'La descripción es requerida' })
   description: string;
 

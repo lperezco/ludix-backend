@@ -8,7 +8,14 @@ import { Favorite } from '../favorites/entities/favorite.entity';
 import { ExerciseHistory } from '../exercise-history/entities/exercise-history.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Exercise, ExerciseType, Favorite, ExerciseHistory])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Exercise,
+      ExerciseType,
+      Favorite,
+      ExerciseHistory,
+    ]),
+  ],
   controllers: [ExercisesController],
   providers: [ExercisesService],
   exports: [ExercisesService],

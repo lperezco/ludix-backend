@@ -14,14 +14,14 @@ import {
   Patch,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
+import { PermissionsGuard } from '../common/guards/permissions.guard';
+import { Permissions } from '../common/decorators/permissions.decorator';
 import { BlockedUsersService } from './blocked-users.service';
 import { CreateBlockedUserDto } from './dto/create-blocked-user.dto';
 import { UpdateBlockedUserDto } from './dto/update-blocked-user.dto';
 
 @Controller('blocked-users')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class BlockedUsersController {
   constructor(private readonly blockedUsersService: BlockedUsersService) {}
 
@@ -30,7 +30,7 @@ export class BlockedUsersController {
    * GET /blocked-users?page=1&limit=10&isActive=true&userId=1&blockedBy=1&startDate=2024-01-01&endDate=2024-12-31
    */
   @Get()
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async findAll(
     @Query('page') page?: string,
@@ -57,7 +57,7 @@ export class BlockedUsersController {
    * GET /blocked-users/stats
    */
   @Get('stats')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async getStats() {
     return this.blockedUsersService.getStats();
@@ -68,7 +68,7 @@ export class BlockedUsersController {
    * GET /blocked-users/user/:userId
    */
   @Get('user/:userId')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async findByUser(
     @Param('userId', ParseIntPipe) userId: number,
@@ -89,7 +89,7 @@ export class BlockedUsersController {
    * GET /blocked-users/blocker/:blockerId
    */
   @Get('blocker/:blockerId')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async findByBlocker(
     @Param('blockerId', ParseIntPipe) blockerId: number,
@@ -108,14 +108,16 @@ export class BlockedUsersController {
    * GET /blocked-users/check/:userId
    */
   @Get('check/:userId')
-  @Roles('admin', 'moderator', 'user')
+  @Permissions('admin', 'moderator', 'user')
   @HttpCode(HttpStatus.OK)
   async isUserBlocked(@Param('userId', ParseIntPipe) userId: number) {
     const isBlocked = await this.blockedUsersService.isUserBlocked(userId);
     return {
       userId,
       isBlocked,
-      message: isBlocked ? 'El usuario está bloqueado' : 'El usuario no está bloqueado',
+      message: isBlocked
+        ? 'El usuario está bloqueado'
+        : 'El usuario no está bloqueado',
     };
   }
 
@@ -124,7 +126,7 @@ export class BlockedUsersController {
    * GET /blocked-users/active/:userId
    */
   @Get('active/:userId')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async getActiveBlock(@Param('userId', ParseIntPipe) userId: number) {
     return this.blockedUsersService.getActiveBlock(userId);
@@ -135,10 +137,12 @@ export class BlockedUsersController {
    * GET /blocked-users/expired?days=30
    */
   @Get('expired')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async getExpiredBlocks(@Query('days') days?: string) {
-    return this.blockedUsersService.getExpiredBlocks(days ? parseInt(days) : 30);
+    return this.blockedUsersService.getExpiredBlocks(
+      days ? parseInt(days) : 30,
+    );
   }
 
   /**
@@ -146,7 +150,7 @@ export class BlockedUsersController {
    * GET /blocked-users/:id
    */
   @Get(':id')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.blockedUsersService.findById(id);
@@ -157,7 +161,7 @@ export class BlockedUsersController {
    * POST /blocked-users
    */
   @Post()
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createBlockedUserDto: CreateBlockedUserDto) {
     return this.blockedUsersService.create(createBlockedUserDto);
@@ -168,7 +172,7 @@ export class BlockedUsersController {
    * PATCH /blocked-users/unblock/:userId
    */
   @Patch('unblock/:userId')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async unblock(@Param('userId', ParseIntPipe) userId: number) {
     return this.blockedUsersService.unblock(userId);
@@ -179,7 +183,7 @@ export class BlockedUsersController {
    * PATCH /blocked-users/expire-old?days=30
    */
   @Patch('expire-old')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async expireOldBlocks(@Query('days') days?: string) {
     return this.blockedUsersService.expireOldBlocks(days ? parseInt(days) : 30);
@@ -190,7 +194,7 @@ export class BlockedUsersController {
    * PUT /blocked-users/:id
    */
   @Put(':id')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -204,7 +208,7 @@ export class BlockedUsersController {
    * DELETE /blocked-users/:id
    */
   @Delete(':id')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.blockedUsersService.remove(id);

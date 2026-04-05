@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreativeArea } from './entities/creative-area.entity';
@@ -15,7 +20,9 @@ export class CreativeAreasService {
     private profileRepository: Repository<Profile>,
   ) {}
 
-  async create(createCreativeAreaDto: CreateCreativeAreaDto): Promise<CreativeArea> {
+  async create(
+    createCreativeAreaDto: CreateCreativeAreaDto,
+  ): Promise<CreativeArea> {
     const { area } = createCreativeAreaDto;
 
     const existing = await this.creativeAreaRepository.findOne({
@@ -25,7 +32,9 @@ export class CreativeAreasService {
       throw new ConflictException(`El área creativa "${area}" ya existe`);
     }
 
-    const creativeArea = this.creativeAreaRepository.create(createCreativeAreaDto);
+    const creativeArea = this.creativeAreaRepository.create(
+      createCreativeAreaDto,
+    );
     return await this.creativeAreaRepository.save(creativeArea);
   }
 
@@ -57,15 +66,22 @@ export class CreativeAreasService {
     return creativeArea;
   }
 
-  async update(id: number, updateCreativeAreaDto: UpdateCreativeAreaDto): Promise<CreativeArea> {
+  async update(
+    id: number,
+    updateCreativeAreaDto: UpdateCreativeAreaDto,
+  ): Promise<CreativeArea> {
     const creativeArea = await this.findById(id);
 
-    if (updateCreativeAreaDto.area && updateCreativeAreaDto.area !== creativeArea.area) {
+    if (
+      updateCreativeAreaDto.area &&
+      updateCreativeAreaDto.area !== creativeArea.area
+    ) {
       const existing = await this.creativeAreaRepository.findOne({
         where: { area: updateCreativeAreaDto.area },
       });
       if (existing) {
-        throw new ConflictException(`El área creativa "${updateCreativeAreaDto.area}" ya existe`);
+        throw new ConflictException(`
+          El área creativa "${updateCreativeAreaDto.area}" ya existe`);
       }
     }
 

@@ -6,7 +6,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
-import { RolesGuard } from './roles.guard';
 import { UsersModule } from '../users/users.module';
 import { User } from '../users/entities/user.entity';
 
@@ -17,17 +16,17 @@ import { User } from '../users/entities/user.entity';
     TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET') || 'ludix-secret-key',
-        signOptions: { 
-          expiresIn: '7d', // ✅ Así está bien, es string
-        },
+        signOptions: {
+          expiresIn: configService.get<string>('JWT_EXPIRES_IN') || '1h',
+        } as any,
       }),
       inject: [ConfigService],
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, RolesGuard],
-  exports: [AuthService, JwtModule, RolesGuard],
+  providers: [AuthService, JwtStrategy],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

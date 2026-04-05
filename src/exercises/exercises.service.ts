@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Exercise } from './entities/exercise.entity';
@@ -28,14 +32,18 @@ export class ExercisesService {
       where: { name },
     });
     if (existing) {
-      throw new ConflictException(`Ya existe un ejercicio con el nombre "${name}"`);
+      throw new ConflictException(
+        `Ya existe un ejercicio con el nombre "${name}"`,
+      );
     }
 
     const exerciseType = await this.exerciseTypeRepository.findOne({
       where: { id: exerciseTypeId },
     });
     if (!exerciseType) {
-      throw new NotFoundException(`Tipo de ejercicio con ID ${exerciseTypeId} no encontrado`);
+      throw new NotFoundException(
+        `Tipo de ejercicio con ID ${exerciseTypeId} no encontrado`,
+      );
     }
 
     const exercise = this.exerciseRepository.create({
@@ -69,7 +77,9 @@ export class ExercisesService {
       where: { id: exerciseTypeId },
     });
     if (!exerciseType) {
-      throw new NotFoundException(`Tipo de ejercicio con ID ${exerciseTypeId} no encontrado`);
+      throw new NotFoundException(
+        `Tipo de ejercicio con ID ${exerciseTypeId} no encontrado`,
+      );
     }
 
     return await this.exerciseRepository.find({
@@ -79,7 +89,10 @@ export class ExercisesService {
     });
   }
 
-  async update(id: number, updateExerciseDto: UpdateExerciseDto): Promise<Exercise> {
+  async update(
+    id: number,
+    updateExerciseDto: UpdateExerciseDto,
+  ): Promise<Exercise> {
     const exercise = await this.findById(id);
 
     if (updateExerciseDto.name && updateExerciseDto.name !== exercise.name) {
@@ -87,16 +100,23 @@ export class ExercisesService {
         where: { name: updateExerciseDto.name },
       });
       if (existing) {
-        throw new ConflictException(`Ya existe un ejercicio con el nombre "${updateExerciseDto.name}"`);
+        throw new ConflictException(
+          `Ya existe un ejercicio con el nombre "${updateExerciseDto.name}"`,
+        );
       }
     }
 
-    if (updateExerciseDto.exerciseTypeId && updateExerciseDto.exerciseTypeId !== exercise.exerciseTypeId) {
+    if (
+      updateExerciseDto.exerciseTypeId &&
+      updateExerciseDto.exerciseTypeId !== exercise.exerciseTypeId
+    ) {
       const exerciseType = await this.exerciseTypeRepository.findOne({
         where: { id: updateExerciseDto.exerciseTypeId },
       });
       if (!exerciseType) {
-        throw new NotFoundException(`Tipo de ejercicio con ID ${updateExerciseDto.exerciseTypeId} no encontrado`);
+        throw new NotFoundException(
+          `Tipo de ejercicio con ID ${updateExerciseDto.exerciseTypeId} no encontrado`,
+        );
       }
     }
 

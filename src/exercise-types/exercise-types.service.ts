@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ExerciseType } from './entities/exercise-type.entity';
@@ -12,7 +17,9 @@ export class ExerciseTypesService {
     private exerciseTypeRepository: Repository<ExerciseType>,
   ) {}
 
-  async create(createExerciseTypeDto: CreateExerciseTypeDto): Promise<ExerciseType> {
+  async create(
+    createExerciseTypeDto: CreateExerciseTypeDto,
+  ): Promise<ExerciseType> {
     const { type } = createExerciseTypeDto;
 
     const existing = await this.exerciseTypeRepository.findOne({
@@ -22,7 +29,9 @@ export class ExerciseTypesService {
       throw new ConflictException(`El tipo de ejercicio "${type}" ya existe`);
     }
 
-    const exerciseType = this.exerciseTypeRepository.create(createExerciseTypeDto);
+    const exerciseType = this.exerciseTypeRepository.create(
+      createExerciseTypeDto,
+    );
     return await this.exerciseTypeRepository.save(exerciseType);
   }
 
@@ -39,7 +48,9 @@ export class ExerciseTypesService {
       relations: ['exercises', 'challenges'],
     });
     if (!exerciseType) {
-      throw new NotFoundException(`Tipo de ejercicio con ID ${id} no encontrado`);
+      throw new NotFoundException(
+        `Tipo de ejercicio con ID ${id} no encontrado`,
+      );
     }
     return exerciseType;
   }
@@ -54,15 +65,23 @@ export class ExerciseTypesService {
     return exerciseType;
   }
 
-  async update(id: number, updateExerciseTypeDto: UpdateExerciseTypeDto): Promise<ExerciseType> {
+  async update(
+    id: number,
+    updateExerciseTypeDto: UpdateExerciseTypeDto,
+  ): Promise<ExerciseType> {
     const exerciseType = await this.findById(id);
 
-    if (updateExerciseTypeDto.type && updateExerciseTypeDto.type !== exerciseType.type) {
+    if (
+      updateExerciseTypeDto.type &&
+      updateExerciseTypeDto.type !== exerciseType.type
+    ) {
       const existing = await this.exerciseTypeRepository.findOne({
         where: { type: updateExerciseTypeDto.type },
       });
       if (existing) {
-        throw new ConflictException(`El tipo de ejercicio "${updateExerciseTypeDto.type}" ya existe`);
+        throw new ConflictException(
+          `El tipo de ejercicio "${updateExerciseTypeDto.type}" ya existe`,
+        );
       }
     }
 
@@ -76,12 +95,6 @@ export class ExerciseTypesService {
     if (exerciseType.exercises && exerciseType.exercises.length > 0) {
       throw new BadRequestException(
         `No se puede eliminar el tipo "${exerciseType.type}" porque tiene ${exerciseType.exercises.length} ejercicios asociados`,
-      );
-    }
-
-    if (exerciseType.challenges && exerciseType.challenges.length > 0) {
-      throw new BadRequestException(
-        `No se puede eliminar el tipo "${exerciseType.type}" porque tiene ${exerciseType.challenges.length} retos asociados`,
       );
     }
 

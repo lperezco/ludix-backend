@@ -1,7 +1,11 @@
-import { IsOptional, IsInt, IsString, IsDate, IsBoolean } from 'class-validator';
+import {
+  IsOptional,
+  IsInt,
+  IsString,
+  IsDate,
+  IsBoolean,
+} from 'class-validator';
 import { Type } from 'class-transformer';
-
-
 
 export class UpdateBlockedUserDto {
   @IsOptional()

@@ -1,10 +1,15 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { User } from './entities/user.entity';
-import { UserType } from '../user-types/entities/user-type.entity';
+import { Rol } from '../rol/entities/rol.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -13,13 +18,13 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-    @InjectRepository(UserType)
-    private userTypeRepository: Repository<UserType>,
+    @InjectRepository(Rol)
+    private rolRepository: Repository<Rol>,
     private configService: ConfigService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const { email, password, name, userTypeId } = createUserDto;
+    const { email, password, name, rolId } = createUserDto;
 
     const existingUser = await this.usersRepository.findOne({
       where: { email },
@@ -28,21 +33,24 @@ export class UsersService {
       throw new ConflictException(`El email ${email} ya está registrado`);
     }
 
-    const userType = await this.userTypeRepository.findOne({
-      where: { id: userTypeId },
+    const rol = await this.rolRepository.findOne({
+      where: { id: rolId },
     });
-    if (!userType) {
-      throw new BadRequestException(`Tipo de usuario con ID ${userTypeId} no existe`);
+    if (!rol) {
+      throw new BadRequestException(`Rol con ID ${rolId} no existe`);
     }
 
-    const saltRounds = parseInt(this.configService.get<string>('SALT_ROUNDS') ?? '10');
+    const saltRounds = parseInt(
+      this.configService.get<string>('SALT_ROUNDS') ?? '10',
+      10,
+    );
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
     const newUser = this.usersRepository.create({
       email,
       password: passwordHash,
       name,
-      userTypeId,
+      rolId,
     });
 
     return this.usersRepository.save(newUser);
@@ -50,15 +58,24 @@ export class UsersService {
 
   async findAll(): Promise<User[]> {
     return this.usersRepository.find({
-      relations: ['userType', 'profile'],
+      relations: [
+        'rol',
+        'profile',
+        'userAchievements',
+        'userAchievements.achievement',
+      ],
       order: { id: 'ASC' },
     });
   }
 
-  async findById(id: number): Promise<User> {
+  async findById(id: number, loadPermissions: boolean = false): Promise<User> {
+    const relations = ['rol'];
+    if (loadPermissions) {
+      relations.push('rol.rolPermissions', 'rol.rolPermissions.permission');
+    }
     const user = await this.usersRepository.findOne({
       where: { id },
-      relations: ['userType', 'profile', 'userAchievements', 'userAchievements.achievement'],
+      relations: relations as any, // TypeORM permite array de strings
     });
     if (!user) {
       throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
@@ -66,10 +83,17 @@ export class UsersService {
     return user;
   }
 
-  async findByEmail(email: string): Promise<User | null> {
+  async findByEmail(
+    email: string,
+    loadPermissions: boolean = false,
+  ): Promise<User | null> {
+    const relations = ['rol'];
+    if (loadPermissions) {
+      relations.push('rol.rolPermissions', 'rol.rolPermissions.permission');
+    }
     return this.usersRepository.findOne({
       where: { email },
-      relations: ['userType'],
+      relations: relations as any,
     });
   }
 
@@ -81,22 +105,32 @@ export class UsersService {
         where: { email: updateUserDto.email },
       });
       if (existingUser) {
-        throw new ConflictException(`El email ${updateUserDto.email} ya está registrado`);
+        throw new ConflictException(
+          `El email ${updateUserDto.email} ya está registrado`,
+        );
       }
     }
 
-    if (updateUserDto.userTypeId && updateUserDto.userTypeId !== user.userTypeId) {
-      const userType = await this.userTypeRepository.findOne({
-        where: { id: updateUserDto.userTypeId },
+    if (updateUserDto.rolId && updateUserDto.rolId !== user.rolId) {
+      const rol = await this.rolRepository.findOne({
+        where: { id: updateUserDto.rolId },
       });
-      if (!userType) {
-        throw new BadRequestException(`Tipo de usuario con ID ${updateUserDto.userTypeId} no existe`);
+      if (!rol) {
+        throw new BadRequestException(
+          `Rol con ID ${updateUserDto.rolId} no existe`,
+        );
       }
     }
 
     if (updateUserDto.password) {
-      const saltRounds = parseInt(this.configService.get<string>('SALT_ROUNDS') ?? '10');
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, saltRounds);
+      const saltRounds = parseInt(
+        this.configService.get<string>('SALT_ROUNDS') ?? '10',
+        10,
+      );
+      updateUserDto.password = await bcrypt.hash(
+        updateUserDto.password,
+        saltRounds,
+      );
     }
 
     await this.usersRepository.update(id, updateUserDto);

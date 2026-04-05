@@ -23,8 +23,16 @@ export class BlockedUsersService {
   /**
    * Bloquear un usuario
    */
-  async create(createBlockedUserDto: CreateBlockedUserDto): Promise<BlockedUser> {
-    const { userId, blockedBy, reason, blockedAt, isActive = true } = createBlockedUserDto;
+  async create(
+    createBlockedUserDto: CreateBlockedUserDto,
+  ): Promise<BlockedUser> {
+    const {
+      userId,
+      blockedBy,
+      reason,
+      blockedAt,
+      isActive = true,
+    } = createBlockedUserDto;
 
     // Verificar que el usuario a bloquear existe
     const userToBlock = await this.userRepository.findOne({
@@ -84,21 +92,26 @@ export class BlockedUsersService {
     blockedBy?: number,
     startDate?: Date,
     endDate?: Date,
-  ): Promise<{ data: BlockedUser[]; total: number; page: number; totalPages: number }> {
+  ): Promise<{
+    data: BlockedUser[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
     const where: any = {};
-    
+
     if (isActive !== undefined) {
       where.isActive = isActive;
     }
-    
+
     if (userId) {
       where.userId = userId;
     }
-    
+
     if (blockedBy) {
       where.blockedBy = blockedBy;
     }
-    
+
     if (startDate && endDate) {
       where.blockedAt = Between(startDate, endDate);
     } else if (startDate) {
@@ -142,7 +155,12 @@ export class BlockedUsersService {
   /**
    * Obtener bloqueos de un usuario
    */
-  async findByUser(userId: number, isActive?: boolean, page: number = 1, limit: number = 10): Promise<any> {
+  async findByUser(
+    userId: number,
+    isActive?: boolean,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<any> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
     });
@@ -156,7 +174,11 @@ export class BlockedUsersService {
   /**
    * Obtener bloqueos realizados por un usuario
    */
-  async findByBlocker(blockedBy: number, page: number = 1, limit: number = 10): Promise<any> {
+  async findByBlocker(
+    blockedBy: number,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<any> {
     const blocker = await this.userRepository.findOne({
       where: { id: blockedBy },
     });
@@ -196,15 +218,19 @@ export class BlockedUsersService {
   /**
    * Desbloquear un usuario (soft deactivate)
    */
-  async unblock(userId: number, unblockedBy?: number): Promise<{ message: string }> {
+  async unblock(userId: number): Promise<{ message: string }> {
     const blockedUser = await this.getActiveBlock(userId);
 
     if (!blockedUser) {
-      throw new NotFoundException(`El usuario ${userId} no está bloqueado actualmente`);
+      throw new NotFoundException(
+        `El usuario ${userId} no está bloqueado actualmente`,
+      );
     }
 
     // Actualizar estado a inactivo
-    await this.blockedUserRepository.update(blockedUser.id, { isActive: false });
+    await this.blockedUserRepository.update(blockedUser.id, {
+      isActive: false,
+    });
 
     return {
       message: `Usuario ${userId} desbloqueado correctamente`,
@@ -214,38 +240,54 @@ export class BlockedUsersService {
   /**
    * Actualizar un bloqueo
    */
-  async update(id: number, updateBlockedUserDto: UpdateBlockedUserDto): Promise<BlockedUser> {
+  async update(
+    id: number,
+    updateBlockedUserDto: UpdateBlockedUserDto,
+  ): Promise<BlockedUser> {
     const blockedUser = await this.findById(id);
 
     // Si se actualiza el userId, verificar que existe
-    if (updateBlockedUserDto.userId && updateBlockedUserDto.userId !== blockedUser.userId) {
+    if (
+      updateBlockedUserDto.userId &&
+      updateBlockedUserDto.userId !== blockedUser.userId
+    ) {
       const user = await this.userRepository.findOne({
         where: { id: updateBlockedUserDto.userId },
       });
       if (!user) {
-        throw new NotFoundException(`Usuario con ID ${updateBlockedUserDto.userId} no encontrado`);
+        throw new NotFoundException(
+          `Usuario con ID ${updateBlockedUserDto.userId} no encontrado`,
+        );
       }
     }
 
     // Si se actualiza el blockedBy, verificar que existe
-    if (updateBlockedUserDto.blockedBy && updateBlockedUserDto.blockedBy !== blockedUser.blockedBy) {
+    if (
+      updateBlockedUserDto.blockedBy &&
+      updateBlockedUserDto.blockedBy !== blockedUser.blockedBy
+    ) {
       const blocker = await this.userRepository.findOne({
         where: { id: updateBlockedUserDto.blockedBy },
       });
       if (!blocker) {
-        throw new NotFoundException(`Usuario con ID ${updateBlockedUserDto.blockedBy} no encontrado`);
+        throw new NotFoundException(
+          `Usuario con ID ${updateBlockedUserDto.blockedBy} no encontrado`,
+        );
       }
     }
 
     // No permitir bloquearse a sí mismo si se cambian los IDs
     const newUserId = updateBlockedUserDto.userId || blockedUser.userId;
-    const newBlockedBy = updateBlockedUserDto.blockedBy || blockedUser.blockedBy;
+    const newBlockedBy =
+      updateBlockedUserDto.blockedBy || blockedUser.blockedBy;
     if (newUserId === newBlockedBy) {
-      throw new BadRequestException('No puedes bloquear a un usuario si eres el mismo');
+      throw new BadRequestException(
+        'No puedes bloquear a un usuario si eres el mismo',
+      );
     }
 
     await this.blockedUserRepository.update(id, updateBlockedUserDto);
-    
+
     return this.findById(id);
   }
 
@@ -254,12 +296,12 @@ export class BlockedUsersService {
    */
   async remove(id: number): Promise<{ message: string }> {
     const blockedUser = await this.findById(id);
-    
+
     const result = await this.blockedUserRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Bloqueo con ID ${id} no encontrado`);
     }
-    
+
     return {
       message: `Bloqueo de usuario ${blockedUser.user?.name || blockedUser.userId} eliminado correctamente`,
     };
@@ -270,7 +312,9 @@ export class BlockedUsersService {
    */
   async getStats(): Promise<any> {
     const total = await this.blockedUserRepository.count();
-    const active = await this.blockedUserRepository.count({ where: { isActive: true } });
+    const active = await this.blockedUserRepository.count({
+      where: { isActive: true },
+    });
     const inactive = total - active;
 
     // Usuarios más bloqueados
@@ -302,7 +346,7 @@ export class BlockedUsersService {
     // Bloqueos por día (últimos 30 días)
     const last30Days = new Date();
     last30Days.setDate(last30Days.getDate() - 30);
-    
+
     const byDay = await this.blockedUserRepository
       .createQueryBuilder('blocked')
       .select('DATE(blocked.blockedAt)', 'date')
@@ -341,14 +385,16 @@ export class BlockedUsersService {
   /**
    * Expirar bloqueos antiguos (desactivarlos automáticamente)
    */
-  async expireOldBlocks(days: number = 30): Promise<{ message: string; expiredCount: number }> {
+  async expireOldBlocks(
+    days: number = 30,
+  ): Promise<{ message: string; expiredCount: number }> {
     const expiredBlocks = await this.getExpiredBlocks(days);
 
     if (expiredBlocks.length === 0) {
       return { message: 'No hay bloqueos expirados', expiredCount: 0 };
     }
 
-    const expiredIds = expiredBlocks.map(block => block.id);
+    const expiredIds = expiredBlocks.map((block) => block.id);
     await this.blockedUserRepository.update(expiredIds, { isActive: false });
 
     return {

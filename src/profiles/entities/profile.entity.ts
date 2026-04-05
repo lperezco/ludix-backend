@@ -1,7 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, OneToOne, JoinColumn, ManyToOne, Column, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToOne,
+  JoinColumn,
+  ManyToOne,
+  Column,
+} from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { CreativeArea } from '../../creative-areas/entities/creative-area.entity';
-import { Post } from '../../posts/entities/post.entity';
 
 @Entity('profiles')
 export class Profile {
@@ -33,7 +39,4 @@ export class Profile {
 
   @Column({ nullable: true })
   socialLinks: string;
-
-  @OneToMany(() => Post, (post) => post.profile)
-  posts: Post[];
 }

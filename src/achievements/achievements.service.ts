@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Achievement } from './entities/achievement.entity';
@@ -15,7 +20,9 @@ export class AchievementsService {
     private userAchievementRepository: Repository<UserAchievement>,
   ) {}
 
-  async create(createAchievementDto: CreateAchievementDto): Promise<Achievement> {
+  async create(
+    createAchievementDto: CreateAchievementDto,
+  ): Promise<Achievement> {
     const { name } = createAchievementDto;
 
     const existing = await this.achievementRepository.findOne({
@@ -57,15 +64,23 @@ export class AchievementsService {
     return achievement;
   }
 
-  async update(id: number, updateAchievementDto: UpdateAchievementDto): Promise<Achievement> {
+  async update(
+    id: number,
+    updateAchievementDto: UpdateAchievementDto,
+  ): Promise<Achievement> {
     const achievement = await this.findById(id);
 
-    if (updateAchievementDto.name && updateAchievementDto.name !== achievement.name) {
+    if (
+      updateAchievementDto.name &&
+      updateAchievementDto.name !== achievement.name
+    ) {
       const existing = await this.achievementRepository.findOne({
         where: { name: updateAchievementDto.name },
       });
       if (existing) {
-        throw new ConflictException(`El logro "${updateAchievementDto.name}" ya existe`);
+        throw new ConflictException(
+          `El logro "${updateAchievementDto.name}" ya existe`,
+        );
       }
     }
 

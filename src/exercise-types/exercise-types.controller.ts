@@ -12,40 +12,40 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
+import { PermissionsGuard } from '../common/guards/permissions.guard';
+import { Permissions } from '../common/decorators/permissions.decorator';
 import { ExerciseTypesService } from './exercise-types.service';
 import { CreateExerciseTypeDto } from './dto/create-exercise-type.dto';
 import { UpdateExerciseTypeDto } from './dto/update-exercise-type.dto';
 
 @Controller('exercise-types')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class ExerciseTypesController {
   constructor(private readonly exerciseTypesService: ExerciseTypesService) {}
 
   @Get()
-  @Roles('admin', 'user')
+  @Permissions('admin', 'user')
   @HttpCode(HttpStatus.OK)
   findAll() {
     return this.exerciseTypesService.findAll();
   }
 
   @Get(':id')
-  @Roles('admin', 'user')
+  @Permissions('admin', 'user')
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.exerciseTypesService.findById(id);
   }
 
   @Post()
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createExerciseTypeDto: CreateExerciseTypeDto) {
     return this.exerciseTypesService.create(createExerciseTypeDto);
   }
 
   @Put(':id')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -55,7 +55,7 @@ export class ExerciseTypesController {
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.exerciseTypesService.remove(id);

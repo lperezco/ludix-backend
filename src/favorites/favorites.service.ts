@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Favorite } from './entities/favorite.entity';
@@ -26,16 +30,22 @@ export class FavoritesService {
       throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
     }
 
-    const exercise = await this.exerciseRepository.findOne({ where: { id: exerciseId } });
+    const exercise = await this.exerciseRepository.findOne({
+      where: { id: exerciseId },
+    });
     if (!exercise) {
-      throw new NotFoundException(`Ejercicio con ID ${exerciseId} no encontrado`);
+      throw new NotFoundException(
+        `Ejercicio con ID ${exerciseId} no encontrado`,
+      );
     }
 
     const existing = await this.favoriteRepository.findOne({
       where: { userId, exerciseId },
     });
     if (existing) {
-      throw new ConflictException(`El ejercicio ya está en favoritos del usuario`);
+      throw new ConflictException(
+        `El ejercicio ya está en favoritos del usuario`,
+      );
     }
 
     const favorite = this.favoriteRepository.create({ userId, exerciseId });
@@ -74,9 +84,13 @@ export class FavoritesService {
   }
 
   async findByExercise(exerciseId: number): Promise<Favorite[]> {
-    const exercise = await this.exerciseRepository.findOne({ where: { id: exerciseId } });
+    const exercise = await this.exerciseRepository.findOne({
+      where: { id: exerciseId },
+    });
     if (!exercise) {
-      throw new NotFoundException(`Ejercicio con ID ${exerciseId} no encontrado`);
+      throw new NotFoundException(
+        `Ejercicio con ID ${exerciseId} no encontrado`,
+      );
     }
 
     return await this.favoriteRepository.find({
@@ -93,24 +107,37 @@ export class FavoritesService {
     return !!favorite;
   }
 
-  async update(id: number, updateFavoriteDto: UpdateFavoriteDto): Promise<Favorite> {
+  async update(
+    id: number,
+    updateFavoriteDto: UpdateFavoriteDto,
+  ): Promise<Favorite> {
     const favorite = await this.findById(id);
 
-    if (updateFavoriteDto.userId && updateFavoriteDto.userId !== favorite.userId) {
+    if (
+      updateFavoriteDto.userId &&
+      updateFavoriteDto.userId !== favorite.userId
+    ) {
       const user = await this.userRepository.findOne({
         where: { id: updateFavoriteDto.userId },
       });
       if (!user) {
-        throw new NotFoundException(`Usuario con ID ${updateFavoriteDto.userId} no encontrado`);
+        throw new NotFoundException(
+          `Usuario con ID ${updateFavoriteDto.userId} no encontrado`,
+        );
       }
     }
 
-    if (updateFavoriteDto.exerciseId && updateFavoriteDto.exerciseId !== favorite.exerciseId) {
+    if (
+      updateFavoriteDto.exerciseId &&
+      updateFavoriteDto.exerciseId !== favorite.exerciseId
+    ) {
       const exercise = await this.exerciseRepository.findOne({
         where: { id: updateFavoriteDto.exerciseId },
       });
       if (!exercise) {
-        throw new NotFoundException(`Ejercicio con ID ${updateFavoriteDto.exerciseId} no encontrado`);
+        throw new NotFoundException(
+          `Ejercicio con ID ${updateFavoriteDto.exerciseId} no encontrado`,
+        );
       }
     }
 
@@ -119,19 +146,24 @@ export class FavoritesService {
   }
 
   async remove(id: number): Promise<{ message: string }> {
-    const favorite = await this.findById(id);
+    await this.findById(id);
     await this.favoriteRepository.delete(id);
     return {
       message: `Ejercicio eliminado de favoritos correctamente`,
     };
   }
 
-  async removeByUserAndExercise(userId: number, exerciseId: number): Promise<{ message: string }> {
+  async removeByUserAndExercise(
+    userId: number,
+    exerciseId: number,
+  ): Promise<{ message: string }> {
     const favorite = await this.favoriteRepository.findOne({
       where: { userId, exerciseId },
     });
     if (!favorite) {
-      throw new NotFoundException(`El ejercicio no está en favoritos del usuario`);
+      throw new NotFoundException(
+        `El ejercicio no está en favoritos del usuario`,
+      );
     }
 
     await this.favoriteRepository.delete(favorite.id);
@@ -140,7 +172,10 @@ export class FavoritesService {
     };
   }
 
-  async toggleFavorite(userId: number, exerciseId: number): Promise<{ isFavorite: boolean; message: string }> {
+  async toggleFavorite(
+    userId: number,
+    exerciseId: number,
+  ): Promise<{ isFavorite: boolean; message: string }> {
     const existing = await this.favoriteRepository.findOne({
       where: { userId, exerciseId },
     });

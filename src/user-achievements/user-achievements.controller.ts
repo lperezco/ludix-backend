@@ -12,37 +12,39 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
+import { PermissionsGuard } from '../common/guards/permissions.guard';
+import { Permissions } from '../common/decorators/permissions.decorator';
 import { UserAchievementsService } from './user-achievements.service';
 import { CreateUserAchievementDto } from './dto/create-user-achievement.dto';
 import { UpdateUserAchievementDto } from './dto/update-user-achievement.dto';
 
 @Controller('user-achievements')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class UserAchievementsController {
   constructor(private readonly service: UserAchievementsService) {}
 
   @Get()
-  @Roles('admin')
+  @Permissions('admin')
   findAll() {
     return this.service.findAll();
   }
 
   @Get('user/:userId')
-  @Roles('admin', 'user')
+  @Permissions('admin', 'user')
   findByUser(@Param('userId', ParseIntPipe) userId: number) {
     return this.service.findByUser(userId);
   }
 
   @Get('achievement/:achievementId')
-  @Roles('admin')
-  findByAchievement(@Param('achievementId', ParseIntPipe) achievementId: number) {
+  @Permissions('admin')
+  findByAchievement(
+    @Param('achievementId', ParseIntPipe) achievementId: number,
+  ) {
     return this.service.findByAchievement(achievementId);
   }
 
   @Get('check/:userId/:achievementId')
-  @Roles('admin', 'user')
+  @Permissions('admin', 'user')
   async checkAchievement(
     @Param('userId', ParseIntPipe) userId: number,
     @Param('achievementId', ParseIntPipe) achievementId: number,
@@ -52,32 +54,35 @@ export class UserAchievementsController {
   }
 
   @Get(':id')
-  @Roles('admin')
+  @Permissions('admin')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findById(id);
   }
 
   @Post()
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.CREATED)
   create(@Body() dto: CreateUserAchievementDto) {
     return this.service.create(dto);
   }
 
   @Put(':id')
-  @Roles('admin')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserAchievementDto) {
+  @Permissions('admin')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateUserAchievementDto,
+  ) {
     return this.service.update(id, dto);
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Permissions('admin')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);
   }
 
   @Delete('user/:userId')
-  @Roles('admin')
+  @Permissions('admin')
   removeAllByUser(@Param('userId', ParseIntPipe) userId: number) {
     return this.service.removeAllByUser(userId);
   }

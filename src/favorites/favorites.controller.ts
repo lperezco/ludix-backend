@@ -13,65 +13,68 @@ import {
   Patch,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
+import { PermissionsGuard } from '../common/guards/permissions.guard';
+import { Permissions } from '../common/decorators/permissions.decorator';
 import { FavoritesService } from './favorites.service';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { UpdateFavoriteDto } from './dto/update-favorite.dto';
 
 @Controller('favorites')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
   @Get()
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   findAll() {
     return this.favoritesService.findAll();
   }
 
   @Get('user/:userId')
-  @Roles('admin', 'user')
+  @Permissions('admin', 'user')
   @HttpCode(HttpStatus.OK)
   findByUser(@Param('userId', ParseIntPipe) userId: number) {
     return this.favoritesService.findByUser(userId);
   }
 
   @Get('exercise/:exerciseId')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   findByExercise(@Param('exerciseId', ParseIntPipe) exerciseId: number) {
     return this.favoritesService.findByExercise(exerciseId);
   }
 
   @Get('check/:userId/:exerciseId')
-  @Roles('admin', 'user')
+  @Permissions('admin', 'user')
   @HttpCode(HttpStatus.OK)
   async checkFavorite(
     @Param('userId', ParseIntPipe) userId: number,
     @Param('exerciseId', ParseIntPipe) exerciseId: number,
   ) {
-    const isFavorite = await this.favoritesService.isFavorite(userId, exerciseId);
+    const isFavorite = await this.favoritesService.isFavorite(
+      userId,
+      exerciseId,
+    );
     return { userId, exerciseId, isFavorite };
   }
 
   @Get(':id')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.favoritesService.findById(id);
   }
 
   @Post()
-  @Roles('admin', 'user')
+  @Permissions('admin', 'user')
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createFavoriteDto: CreateFavoriteDto) {
     return this.favoritesService.create(createFavoriteDto);
   }
 
   @Patch('toggle/:userId/:exerciseId')
-  @Roles('admin', 'user')
+  @Permissions('admin', 'user')
   @HttpCode(HttpStatus.OK)
   toggleFavorite(
     @Param('userId', ParseIntPipe) userId: number,
@@ -81,7 +84,7 @@ export class FavoritesController {
   }
 
   @Put(':id')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -91,14 +94,14 @@ export class FavoritesController {
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.favoritesService.remove(id);
   }
 
   @Delete('user/:userId/exercise/:exerciseId')
-  @Roles('admin', 'user')
+  @Permissions('admin', 'user')
   @HttpCode(HttpStatus.OK)
   removeByUserAndExercise(
     @Param('userId', ParseIntPipe) userId: number,

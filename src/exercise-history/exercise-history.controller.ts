@@ -13,23 +13,25 @@ import {
   Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
+import { PermissionsGuard } from '../common/guards/permissions.guard';
+import { Permissions } from '../common/decorators/permissions.decorator';
 import { ExerciseHistoryService } from './exercise-history.service';
 import { CreateExerciseHistoryDto } from './dto/create-exercise-history.dto';
 import { UpdateExerciseHistoryDto } from './dto/update-exercise-history.dto';
 
 @Controller('exercise-history')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class ExerciseHistoryController {
-  constructor(private readonly exerciseHistoryService: ExerciseHistoryService) {}
+  constructor(
+    private readonly exerciseHistoryService: ExerciseHistoryService,
+  ) {}
 
   /**
    * Obtener todo el historial (con paginación y filtros)
    * GET /exercise-history?page=1&limit=10&userId=1&exerciseId=1&startDate=2024-01-01&endDate=2024-12-31
    */
   @Get()
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async findAll(
     @Query('page') page?: string,
@@ -54,7 +56,7 @@ export class ExerciseHistoryController {
    * GET /exercise-history/stats/global
    */
   @Get('stats/global')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async getGlobalStats() {
     return this.exerciseHistoryService.getGlobalStats();
@@ -65,7 +67,7 @@ export class ExerciseHistoryController {
    * GET /exercise-history/stats/user/:userId
    */
   @Get('stats/user/:userId')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async getUserStats(@Param('userId', ParseIntPipe) userId: number) {
     return this.exerciseHistoryService.getUserStats(userId);
@@ -76,10 +78,10 @@ export class ExerciseHistoryController {
    * GET /exercise-history/stats/me
    */
   @Get('stats/me')
-  @Roles('user')
+  @Permissions('user')
   @HttpCode(HttpStatus.OK)
   async getMyStats() {
-    const userId = 1; // 👈 Reemplazar con el ID del usuario autenticado
+    const userId = 1;
     return this.exerciseHistoryService.getUserStats(userId);
   }
 
@@ -88,7 +90,7 @@ export class ExerciseHistoryController {
    * GET /exercise-history/user/:userId
    */
   @Get('user/:userId')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async findByUser(
     @Param('userId', ParseIntPipe) userId: number,
@@ -111,7 +113,7 @@ export class ExerciseHistoryController {
    * GET /exercise-history/me
    */
   @Get('me')
-  @Roles('user')
+  @Permissions('user')
   @HttpCode(HttpStatus.OK)
   async getMyHistory(
     @Query('page') page?: string,
@@ -119,7 +121,7 @@ export class ExerciseHistoryController {
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
-    const userId = 1; // 👈 Reemplazar con el ID del usuario autenticado
+    const userId = 1;
     return this.exerciseHistoryService.findByUser(
       userId,
       page ? parseInt(page) : 1,
@@ -134,10 +136,10 @@ export class ExerciseHistoryController {
    * GET /exercise-history/me/today
    */
   @Get('me/today')
-  @Roles('user')
+  @Permissions('user')
   @HttpCode(HttpStatus.OK)
   async getTodayHistory() {
-    const userId = 1; // 👈 Reemplazar con el ID del usuario autenticado
+    const userId = 1;
     return this.exerciseHistoryService.getTodayHistory(userId);
   }
 
@@ -146,10 +148,10 @@ export class ExerciseHistoryController {
    * GET /exercise-history/me/week
    */
   @Get('me/week')
-  @Roles('user')
+  @Permissions('user')
   @HttpCode(HttpStatus.OK)
   async getCurrentWeekHistory() {
-    const userId = 1; // 👈 Reemplazar con el ID del usuario autenticado
+    const userId = 1;
     return this.exerciseHistoryService.getCurrentWeekHistory(userId);
   }
 
@@ -158,10 +160,10 @@ export class ExerciseHistoryController {
    * GET /exercise-history/me/streak
    */
   @Get('me/streak')
-  @Roles('user')
+  @Permissions('user')
   @HttpCode(HttpStatus.OK)
   async getCurrentStreak() {
-    const userId = 1; // 👈 Reemplazar con el ID del usuario autenticado
+    const userId = 1;
     const streak = await this.exerciseHistoryService.getCurrentStreak(userId);
     return { userId, streak };
   }
@@ -171,7 +173,7 @@ export class ExerciseHistoryController {
    * GET /exercise-history/exercise/:exerciseId
    */
   @Get('exercise/:exerciseId')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async findByExercise(
     @Param('exerciseId', ParseIntPipe) exerciseId: number,
@@ -194,7 +196,7 @@ export class ExerciseHistoryController {
    * GET /exercise-history/date-range?start=2024-01-01&end=2024-12-31&userId=1
    */
   @Get('date-range')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async findByDateRange(
     @Query('start') startDate: string,
@@ -217,7 +219,7 @@ export class ExerciseHistoryController {
    * GET /exercise-history/:id
    */
   @Get(':id')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.exerciseHistoryService.findById(id);
@@ -228,7 +230,7 @@ export class ExerciseHistoryController {
    * POST /exercise-history
    */
   @Post()
-  @Roles('admin', 'user')
+  @Permissions('admin', 'user')
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createExerciseHistoryDto: CreateExerciseHistoryDto) {
     return this.exerciseHistoryService.create(createExerciseHistoryDto);
@@ -239,13 +241,13 @@ export class ExerciseHistoryController {
    * POST /exercise-history/me/:exerciseId
    */
   @Post('me/:exerciseId')
-  @Roles('user')
+  @Permissions('user')
   @HttpCode(HttpStatus.CREATED)
   async addToMyHistory(
     @Param('exerciseId', ParseIntPipe) exerciseId: number,
     @Body('completedAt') completedAt?: Date,
   ) {
-    const userId = 1; // 👈 Reemplazar con el ID del usuario autenticado
+    const userId = 1;
     return this.exerciseHistoryService.create({
       userId,
       exerciseId,
@@ -258,7 +260,7 @@ export class ExerciseHistoryController {
    * PUT /exercise-history/:id
    */
   @Put(':id')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -272,7 +274,7 @@ export class ExerciseHistoryController {
    * DELETE /exercise-history/:id
    */
   @Delete(':id')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.exerciseHistoryService.remove(id);
@@ -283,10 +285,10 @@ export class ExerciseHistoryController {
    * DELETE /exercise-history/me
    */
   @Delete('me')
-  @Roles('user')
+  @Permissions('user')
   @HttpCode(HttpStatus.OK)
   async removeMyHistory() {
-    const userId = 1; // 👈 Reemplazar con el ID del usuario autenticado
+    const userId = 1;
     return this.exerciseHistoryService.removeByUser(userId);
   }
 
@@ -295,7 +297,7 @@ export class ExerciseHistoryController {
    * DELETE /exercise-history/user/:userId
    */
   @Delete('user/:userId')
-  @Roles('admin')
+  @Permissions('admin')
   @HttpCode(HttpStatus.OK)
   async removeByUser(@Param('userId', ParseIntPipe) userId: number) {
     return this.exerciseHistoryService.removeByUser(userId);

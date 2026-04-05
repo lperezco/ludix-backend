@@ -21,7 +21,7 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
-    // Cargar usuario con permisos (true)
+
     const user = await this.usersService.findByEmail(email, true);
     if (!user) {
       throw new UnauthorizedException('Credenciales inválidas');
@@ -30,7 +30,8 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
-    const { password: result } = user;
+    
+    const { password: _, ...result } = user;
     return result;
   }
 
@@ -64,7 +65,7 @@ export class AuthService {
     name: string;
     rolId?: number;
   }) {
-    const { email, password, name, rolId = 2 } = registerDto; // rol user por defecto id=2
+    const { email, password, name, rolId = 2 } = registerDto;
     const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {
       throw new BadRequestException('El email ya está registrado');

@@ -13,7 +13,7 @@ import { Favorite } from '../../favorites/entities/favorite.entity';
 import { ExerciseHistory } from '../../exercise-history/entities/exercise-history.entity';
 import { Report } from '../../reports/entities/report.entity';
 import { BlockedUser } from '../../blocked-users/entities/blocked-user.entity';
-import { Rol } from 'src/rol/entities/rol.entity';
+import { Rol } from '../../rol/entities/rol.entity';
 import { Comment } from '../../comments/entities/comment.entity';
 
 @Entity('users')

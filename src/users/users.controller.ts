@@ -24,14 +24,14 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @Permissions('view_users')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  @Permissions('view_user')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findById(id);

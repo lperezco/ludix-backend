@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
 
 // Módulos de la aplicación
 import { AuthModule } from './auth/auth.module';
@@ -36,7 +37,7 @@ import { UserAchievementsModule } from './user-achievements/user-achievements.mo
           return {
             type: 'postgres',
             url: databaseUrl,
-            entities: ['dist/**/*.entity.js'], // Para Railway (producción)
+            entities: ['dist/**/*.entity.js'],
             synchronize: configService.get('DB_SYNCHRONIZE') === 'true',
             logging: configService.get('DB_LOGGING') === 'true',
             ssl: { rejectUnauthorized: false },
@@ -50,7 +51,7 @@ import { UserAchievementsModule } from './user-achievements/user-achievements.mo
           username: configService.get('DB_USERNAME', 'postgres'),
           password: configService.get('DB_PASSWORD', 'postgres'),
           database: configService.get('DB_DATABASE', 'ludix'),
-          entities: ['dist/**/*.entity.js'], // Para desarrollo local
+          entities: ['dist/**/*.entity.js'],
           synchronize: configService.get('DB_SYNCHRONIZE') === 'true',
           logging: configService.get('DB_LOGGING') === 'true',
         };
@@ -73,5 +74,6 @@ import { UserAchievementsModule } from './user-achievements/user-achievements.mo
     ReportsModule,
     UserAchievementsModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}

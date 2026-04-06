@@ -1,4 +1,4 @@
-# LUDIX - Backend
+# 🎮 LUDIX - Backend
 
 Aplicación backend para **LUDIX**, una plataforma de bienestar creativo.
 
@@ -79,7 +79,7 @@ npm run test:cov
 
 ### Opción 1: Swagger *(recomendado)*
 
-Abrir en el navegador: [`https://ludix-backend.onrender.com/api`]
+Abrir en el navegador: [`https://ludix-backend.onrender.com/api`](https://ludix-backend.onrender.com/api)
 
 ### Opción 2: Postman
 
@@ -109,7 +109,7 @@ La aplicación está desplegada en **Render**:
 
 ## 🎥 Video demostrativo
 
-[![Ver video de despliegue](https://youtu.be/u4IYgKoqPRo)
+[![Ver video de despliegue](https://img.shields.io/badge/YouTube-Ver%20demo-red?logo=youtube)](https://youtu.be/u4IYgKoqPRo)
 
 ---
 

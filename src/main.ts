@@ -55,8 +55,9 @@ Para usar los endpoints protegidos, primero debes:
     },
   });
 
-  await app.listen(3000);
-  console.log(`Aplicación corriendo en: http://localhost:3000`);
-  console.log(`Documentación Swagger en: http://localhost:3000/api`);
+  // ✅ Usar puerto dinámico para Railway
+  await app.listen(process.env.PORT ?? 3000);
+  console.log(`Aplicación corriendo en: http://localhost:${process.env.PORT ?? 3000}`);
+  console.log(`Documentación Swagger en: http://localhost:${process.env.PORT ?? 3000}/api`);
 }
 bootstrap();

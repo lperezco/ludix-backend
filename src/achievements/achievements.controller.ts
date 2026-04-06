@@ -24,28 +24,28 @@ export class AchievementsController {
   constructor(private readonly achievementsService: AchievementsService) {}
 
   @Get()
-  @Permissions('read_achievement') // permiso para ver logros
+  @Permissions('manage_achievements')
   @HttpCode(HttpStatus.OK)
   findAll() {
     return this.achievementsService.findAll();
   }
 
   @Get(':id')
-  @Permissions('read_achievement')
+  @Permissions('manage_achievements')
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.achievementsService.findById(id);
   }
 
   @Post()
-  @Permissions('create_achievement')
+  @Permissions('manage_achievements')
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createAchievementDto: CreateAchievementDto) {
     return this.achievementsService.create(createAchievementDto);
   }
 
   @Put(':id')
-  @Permissions('update_achievement')
+  @Permissions('manage_achievements')
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -55,7 +55,7 @@ export class AchievementsController {
   }
 
   @Delete(':id')
-  @Permissions('delete_achievement')
+  @Permissions('manage_achievements')
   @HttpCode(HttpStatus.OK)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.achievementsService.remove(id);

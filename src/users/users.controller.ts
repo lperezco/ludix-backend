@@ -24,28 +24,28 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @Permissions('admin')
+  @Permissions('view_users')
   @HttpCode(HttpStatus.OK)
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  @Permissions('admin')
+  @Permissions('view_user')
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findById(id);
   }
 
   @Post()
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Put(':id')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -55,7 +55,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);

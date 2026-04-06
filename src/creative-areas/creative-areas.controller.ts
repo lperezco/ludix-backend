@@ -24,28 +24,28 @@ export class CreativeAreasController {
   constructor(private readonly creativeAreasService: CreativeAreasService) {}
 
   @Get()
-  @Permissions('admin', 'user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
   findAll() {
     return this.creativeAreasService.findAll();
   }
 
   @Get(':id')
-  @Permissions('admin', 'user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.creativeAreasService.findById(id);
   }
 
   @Post()
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createCreativeAreaDto: CreateCreativeAreaDto) {
     return this.creativeAreasService.create(createCreativeAreaDto);
   }
 
   @Put(':id')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -55,7 +55,7 @@ export class CreativeAreasController {
   }
 
   @Delete(':id')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.creativeAreasService.remove(id);

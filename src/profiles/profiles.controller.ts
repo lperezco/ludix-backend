@@ -24,35 +24,35 @@ export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 
   @Get()
-  @Permissions('read:profiles')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   findAll() {
     return this.profilesService.findAll();
   }
 
   @Get('user/:userId')
-  @Permissions('read:profiles')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
   findByUserId(@Param('userId', ParseIntPipe) userId: number) {
     return this.profilesService.findByUserId(userId);
   }
 
   @Get(':id')
-  @Permissions('read:profiles')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.profilesService.findById(id);
   }
 
   @Post()
-  @Permissions('create:profiles')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createProfileDto: CreateProfileDto) {
     return this.profilesService.create(createProfileDto);
   }
 
   @Put(':id')
-  @Permissions('update:profiles')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -62,7 +62,7 @@ export class ProfilesController {
   }
 
   @Delete(':id')
-  @Permissions('delete:profiles')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.profilesService.remove(id);

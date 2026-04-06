@@ -55,7 +55,7 @@ export class ReportsController {
   }
 
   @Post()
-  @Permissions('create_report')
+  @Permissions('manage_reports')
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createDto: CreateReportDto) {
     return this.reportsService.create(createDto);

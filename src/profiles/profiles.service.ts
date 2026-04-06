@@ -23,14 +23,15 @@ export class ProfilesService {
   ) {}
 
   async create(createProfileDto: CreateProfileDto): Promise<Profile> {
-    const { userId, creativeAreaId, bio, avatarUrl, location, socialLinks } =
-      createProfileDto;
+    const { userId, creativeAreaId, bio, avatarUrl, location, socialLinks } = createProfileDto;
 
+    // Verificar usuario
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
     }
 
+    // Verificar si ya tiene perfil
     const existingProfile = await this.profileRepository.findOne({
       where: { userId },
     });
@@ -38,13 +39,12 @@ export class ProfilesService {
       throw new ConflictException(`El usuario ${userId} ya tiene un perfil`);
     }
 
+    // Verificar área creativa
     const creativeArea = await this.creativeAreaRepository.findOne({
       where: { id: creativeAreaId },
     });
     if (!creativeArea) {
-      throw new NotFoundException(
-        `Área creativa con ID ${creativeAreaId} no encontrada`,
-      );
+      throw new NotFoundException(`Área creativa con ID ${creativeAreaId} no encontrada`);
     }
 
     const profile = this.profileRepository.create({
@@ -60,8 +60,8 @@ export class ProfilesService {
   }
 
   async findAll(): Promise<Profile[]> {
+    // No cargues relaciones problemáticas, solo ordena
     return await this.profileRepository.find({
-      relations: ['user', 'creativeArea', 'posts'],
       order: { id: 'ASC' },
     });
   }
@@ -69,7 +69,7 @@ export class ProfilesService {
   async findById(id: number): Promise<Profile> {
     const profile = await this.profileRepository.findOne({
       where: { id },
-      relations: ['user', 'creativeArea', 'posts'],
+      // Sin relaciones para evitar errores
     });
     if (!profile) {
       throw new NotFoundException(`Perfil con ID ${id} no encontrado`);
@@ -80,20 +80,14 @@ export class ProfilesService {
   async findByUserId(userId: number): Promise<Profile> {
     const profile = await this.profileRepository.findOne({
       where: { userId },
-      relations: ['user', 'creativeArea', 'posts'],
     });
     if (!profile) {
-      throw new NotFoundException(
-        `Perfil para usuario con ID ${userId} no encontrado`,
-      );
+      throw new NotFoundException(`Perfil para usuario con ID ${userId} no encontrado`);
     }
     return profile;
   }
 
-  async update(
-    id: number,
-    updateProfileDto: UpdateProfileDto,
-  ): Promise<Profile> {
+  async update(id: number, updateProfileDto: UpdateProfileDto): Promise<Profile> {
     const profile = await this.findById(id);
 
     if (updateProfileDto.userId && updateProfileDto.userId !== profile.userId) {
@@ -101,32 +95,23 @@ export class ProfilesService {
         where: { id: updateProfileDto.userId },
       });
       if (!user) {
-        throw new NotFoundException(
-          `Usuario con ID ${updateProfileDto.userId} no encontrado`,
-        );
+        throw new NotFoundException(`Usuario con ID ${updateProfileDto.userId} no encontrado`);
       }
 
       const existingProfile = await this.profileRepository.findOne({
         where: { userId: updateProfileDto.userId },
       });
       if (existingProfile && existingProfile.id !== id) {
-        throw new ConflictException(
-          `El usuario ${updateProfileDto.userId} ya tiene un perfil`,
-        );
+        throw new ConflictException(`El usuario ${updateProfileDto.userId} ya tiene un perfil`);
       }
     }
 
-    if (
-      updateProfileDto.creativeAreaId &&
-      updateProfileDto.creativeAreaId !== profile.creativeAreaId
-    ) {
+    if (updateProfileDto.creativeAreaId && updateProfileDto.creativeAreaId !== profile.creativeAreaId) {
       const creativeArea = await this.creativeAreaRepository.findOne({
         where: { id: updateProfileDto.creativeAreaId },
       });
       if (!creativeArea) {
-        throw new NotFoundException(
-          `Área creativa con ID ${updateProfileDto.creativeAreaId} no encontrada`,
-        );
+        throw new NotFoundException(`Área creativa con ID ${updateProfileDto.creativeAreaId} no encontrada`);
       }
     }
 
@@ -136,10 +121,9 @@ export class ProfilesService {
 
   async remove(id: number): Promise<{ message: string }> {
     const profile = await this.findById(id);
-
     await this.profileRepository.delete(id);
     return {
-      message: `Perfil de usuario ${profile.user?.name || profile.userId} eliminado correctamente`,
+      message: `Perfil de usuario ${profile.userId} eliminado correctamente`,
     };
   }
 }

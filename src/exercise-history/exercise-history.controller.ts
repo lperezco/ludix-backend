@@ -11,6 +11,8 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { PermissionsGuard } from '../common/guards/permissions.guard';
@@ -22,16 +24,14 @@ import { UpdateExerciseHistoryDto } from './dto/update-exercise-history.dto';
 @Controller('exercise-history')
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class ExerciseHistoryController {
-  constructor(
-    private readonly exerciseHistoryService: ExerciseHistoryService,
-  ) {}
+  constructor(private readonly exerciseHistoryService: ExerciseHistoryService) {}
 
   /**
-   * Obtener todo el historial (con paginación y filtros)
+   * Obtener todo el historial (solo admin)
    * GET /exercise-history?page=1&limit=10&userId=1&exerciseId=1&startDate=2024-01-01&endDate=2024-12-31
    */
   @Get()
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   async findAll(
     @Query('page') page?: string,
@@ -52,22 +52,22 @@ export class ExerciseHistoryController {
   }
 
   /**
-   * Obtener estadísticas globales
+   * Obtener estadísticas globales (solo admin)
    * GET /exercise-history/stats/global
    */
   @Get('stats/global')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   async getGlobalStats() {
     return this.exerciseHistoryService.getGlobalStats();
   }
 
   /**
-   * Obtener estadísticas de un usuario
+   * Obtener estadísticas de un usuario (solo admin)
    * GET /exercise-history/stats/user/:userId
    */
   @Get('stats/user/:userId')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   async getUserStats(@Param('userId', ParseIntPipe) userId: number) {
     return this.exerciseHistoryService.getUserStats(userId);
@@ -78,19 +78,22 @@ export class ExerciseHistoryController {
    * GET /exercise-history/stats/me
    */
   @Get('stats/me')
-  @Permissions('user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
-  async getMyStats() {
-    const userId = 1;
+  async getMyStats(@Req() req: any) {
+    const userId = req.user?.id; // Ajusta según el payload de tu JWT (puede ser req.user.userId)
+    if (!userId) {
+      throw new UnauthorizedException('Usuario no autenticado');
+    }
     return this.exerciseHistoryService.getUserStats(userId);
   }
 
   /**
-   * Obtener historial de un usuario
+   * Obtener historial de un usuario (solo admin)
    * GET /exercise-history/user/:userId
    */
   @Get('user/:userId')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   async findByUser(
     @Param('userId', ParseIntPipe) userId: number,
@@ -113,15 +116,19 @@ export class ExerciseHistoryController {
    * GET /exercise-history/me
    */
   @Get('me')
-  @Permissions('user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
   async getMyHistory(
+    @Req() req: any,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
-    const userId = 1;
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new UnauthorizedException('Usuario no autenticado');
+    }
     return this.exerciseHistoryService.findByUser(
       userId,
       page ? parseInt(page) : 1,
@@ -132,48 +139,57 @@ export class ExerciseHistoryController {
   }
 
   /**
-   * Obtener mi historial de hoy
+   * Obtener mi historial de hoy (usuario autenticado)
    * GET /exercise-history/me/today
    */
   @Get('me/today')
-  @Permissions('user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
-  async getTodayHistory() {
-    const userId = 1;
+  async getTodayHistory(@Req() req: any) {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new UnauthorizedException('Usuario no autenticado');
+    }
     return this.exerciseHistoryService.getTodayHistory(userId);
   }
 
   /**
-   * Obtener mi historial de la semana
+   * Obtener mi historial de la semana (usuario autenticado)
    * GET /exercise-history/me/week
    */
   @Get('me/week')
-  @Permissions('user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
-  async getCurrentWeekHistory() {
-    const userId = 1;
+  async getCurrentWeekHistory(@Req() req: any) {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new UnauthorizedException('Usuario no autenticado');
+    }
     return this.exerciseHistoryService.getCurrentWeekHistory(userId);
   }
 
   /**
-   * Obtener mi racha actual
+   * Obtener mi racha actual (usuario autenticado)
    * GET /exercise-history/me/streak
    */
   @Get('me/streak')
-  @Permissions('user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
-  async getCurrentStreak() {
-    const userId = 1;
+  async getCurrentStreak(@Req() req: any) {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new UnauthorizedException('Usuario no autenticado');
+    }
     const streak = await this.exerciseHistoryService.getCurrentStreak(userId);
     return { userId, streak };
   }
 
   /**
-   * Obtener historial de un ejercicio
+   * Obtener historial de un ejercicio (solo admin)
    * GET /exercise-history/exercise/:exerciseId
    */
   @Get('exercise/:exerciseId')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   async findByExercise(
     @Param('exerciseId', ParseIntPipe) exerciseId: number,
@@ -192,11 +208,11 @@ export class ExerciseHistoryController {
   }
 
   /**
-   * Obtener historial por rango de fechas
+   * Obtener historial por rango de fechas (solo admin)
    * GET /exercise-history/date-range?start=2024-01-01&end=2024-12-31&userId=1
    */
   @Get('date-range')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   async findByDateRange(
     @Query('start') startDate: string,
@@ -215,39 +231,43 @@ export class ExerciseHistoryController {
   }
 
   /**
-   * Obtener un registro por ID
+   * Obtener un registro por ID (solo admin)
    * GET /exercise-history/:id
    */
   @Get(':id')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.exerciseHistoryService.findById(id);
   }
 
   /**
-   * Registrar un ejercicio completado
+   * Registrar un ejercicio completado (cualquier usuario autenticado)
    * POST /exercise-history
    */
   @Post()
-  @Permissions('admin', 'user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createExerciseHistoryDto: CreateExerciseHistoryDto) {
     return this.exerciseHistoryService.create(createExerciseHistoryDto);
   }
 
   /**
-   * Registrar mi ejercicio completado
+   * Registrar mi ejercicio completado (usuario autenticado)
    * POST /exercise-history/me/:exerciseId
    */
   @Post('me/:exerciseId')
-  @Permissions('user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.CREATED)
   async addToMyHistory(
+    @Req() req: any,
     @Param('exerciseId', ParseIntPipe) exerciseId: number,
     @Body('completedAt') completedAt?: Date,
   ) {
-    const userId = 1;
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new UnauthorizedException('Usuario no autenticado');
+    }
     return this.exerciseHistoryService.create({
       userId,
       exerciseId,
@@ -256,11 +276,11 @@ export class ExerciseHistoryController {
   }
 
   /**
-   * Actualizar un registro
+   * Actualizar un registro (solo admin)
    * PUT /exercise-history/:id
    */
   @Put(':id')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -270,34 +290,37 @@ export class ExerciseHistoryController {
   }
 
   /**
-   * Eliminar un registro
+   * Eliminar un registro (solo admin)
    * DELETE /exercise-history/:id
    */
   @Delete(':id')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.exerciseHistoryService.remove(id);
   }
 
   /**
-   * Eliminar mi historial
+   * Eliminar mi historial (usuario autenticado)
    * DELETE /exercise-history/me
    */
   @Delete('me')
-  @Permissions('user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
-  async removeMyHistory() {
-    const userId = 1;
+  async removeMyHistory(@Req() req: any) {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new UnauthorizedException('Usuario no autenticado');
+    }
     return this.exerciseHistoryService.removeByUser(userId);
   }
 
   /**
-   * Eliminar todo el historial de un usuario
+   * Eliminar todo el historial de un usuario (solo admin)
    * DELETE /exercise-history/user/:userId
    */
   @Delete('user/:userId')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   async removeByUser(@Param('userId', ParseIntPipe) userId: number) {
     return this.exerciseHistoryService.removeByUser(userId);

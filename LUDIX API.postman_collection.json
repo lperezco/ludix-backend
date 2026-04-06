@@ -1,0 +1,6006 @@
+{
+  "info": {
+    "_postman_id": "c1c627a9-243f-43f2-b5a9-f8098b7a99d6",
+    "name": "LUDIX API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53073438",
+    "_collection_link": "https://go.postman.co/collection/53073438-c1c627a9-243f-43f2-b5a9-f8098b7a99d6?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "const json = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"token\", json.access_token);\r",
+                  "pm.test(\"Token saved\", function () {\r",
+                  "    pm.expect(json.access_token).to.not.be.null;\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"test@example.com\",\r\n  \"password\": \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "pm.test(\"Response has user and token\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property(\"access_token\");\r",
+                  "    pm.expect(json).to.have.property(\"user\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"test@example.com\",\r\n  \"password\": \"123456\",\r\n  \"name\": \"Test User\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test(\"Response has user data\", function () {\r",
+                  "    pm.expect(json).to.have.property(\"id\");\r",
+                  "    pm.expect(json).to.have.property(\"email\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 401\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property(\"message\");\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"oldPassword\": \"123456\",\r\n  \"newPassword\": \"nueva123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/change-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "change-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Logout successful\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property(\"message\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get all users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    // Si el token es de admin → 200; si es de user normal → 403\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response is array\", function () {\r",
+                  "        pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "    });\r",
+                  "}\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create a user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 201) {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.test(\"Response contains created user\", function () {\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json.email).to.eql(\"nuevo_usuario@example.com\");\r",
+                  "    });\r",
+                  "    pm.collectionVariables.set(\"userId\", json.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"otro@example.com\",\r\n  \"password\": \"123456\",\r\n  \"name\": \"Otro Usuario\",\r\n  \"rolId\": 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get user by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response has expected properties\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json).to.have.property('email');\r",
+                  "        pm.expect(json).to.have.property('name');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/3",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update a user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response shows updated data\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json.name).to.eql(\"Nombre Actualizado\");\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Nuevo nombre\",\r\n  \"email\": \"nuevo@example.com\",\r\n  \"rolId\": 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/users/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/4",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Exercises",
+      "item": [
+        {
+          "name": "Get all exercises",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is array\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercises",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercises"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get exercise by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Exercise has id\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property(\"id\");\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercises/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercises",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get exercises by exercise type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/exercises/type/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercises",
+                "type",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create exercise",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 (Created) or 403 (Forbidden)\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 201) {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.test(\"Response contains the created exercise\", function () {\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json.name).to.eql('Nuevo ejercicio de prueba');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Nuevo ejercicio de prueba\",\r\n  \"description\": \"Descripción del ejercicio\",\r\n  \"duration\": 10,\r\n  \"exerciseTypeId\": 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/exercises",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercises"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update exercise",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response shows updated data\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json.name).to.eql('Ejercicio actualizado');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Ejercicio actualizado\",\r\n  \"description\": \"Nueva descripción\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/exercises/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercises",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete exercise",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response contains success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercises/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercises",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "Get all comments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/comments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "comments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"userId\": 2,\r\n  \"exerciseId\": 4,\r\n  \"content\": \"Este es un comentario de prueba\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/comments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "comments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get comments by exercise",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/comments/exercise/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "comments",
+                "exercise",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get comments by user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/comments/user/3",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "comments",
+                "user",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get comment by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response has expected properties\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property('id');\r",
+                  "    pm.expect(json).to.have.property('content');\r",
+                  "    pm.expect(json).to.have.property('userId');\r",
+                  "    pm.expect(json).to.have.property('exerciseId');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/comments/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "comments",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update comment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response shows updated content\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json.content).to.eql(\"Actualización: este comentario fue modificado.\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"content\": \"Actualización: este comentario fue modificado.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/comments/{{commentId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "comments",
+                "{{commentId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete comment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response contains success message\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property('message');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/comments/{{commentId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "comments",
+                "{{commentId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Achievements",
+      "item": [
+        {
+          "name": "Get all achievements",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.be.an('array');\r",
+                  "});\r",
+                  "if (pm.response.json().length > 0) {\r",
+                  "    pm.test(\"Each achievement has required fields\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        json.forEach(ach => {\r",
+                  "            pm.expect(ach).to.have.property('id');\r",
+                  "            pm.expect(ach).to.have.property('name');\r",
+                  "            pm.expect(ach).to.have.property('description');\r",
+                  "            pm.expect(ach).to.have.property('requirement');\r",
+                  "        });\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/achievements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "achievements"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get achievement by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response has expected properties\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property('id');\r",
+                  "    pm.expect(json).to.have.property('name');\r",
+                  "    pm.expect(json).to.have.property('description');\r",
+                  "    pm.expect(json).to.have.property('requirement');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/achievements/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "achievements",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create achievement",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 (Created) or 403 (Forbidden)\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 201) {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.test(\"Response contains the created achievement\", function () {\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json.name).to.eql('Logro de prueba');\r",
+                  "    });\r",
+                  "    // Guardar el ID para usarlo en update/delete\r",
+                  "    pm.collectionVariables.set(\"achievementId\", json.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Logro de prueba\",\r\n  \"description\": \"Completar 5 ejercicios seguidos\",\r\n  \"requirement\": \"5 días consecutivos\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/achievements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "achievements"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update achievement",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response shows updated data\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json.name).to.eql('Logro actualizado');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Logro actualizado\",\r\n  \"description\": \"Nueva descripción\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/achievements/{{achievementId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "achievements",
+                "{{achievementId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete achievement",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response contains success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/achievements/{{achievementId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "achievements",
+                "{{achievementId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Blocked Users",
+      "item": [
+        {
+          "name": "Get all blocked-users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response is an array\", function () {\r",
+                  "        pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/blocked-users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "blocked-users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create blocked-users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 201) {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.test(\"Response contains blocked user data\", function () {\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json.userId).to.eql(2);\r",
+                  "    });\r",
+                  "    pm.collectionVariables.set(\"blockedUserId\", json.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"userId\": 2,\r\n  \"blockedBy\": 1,\r\n  \"reason\": \"Comportamiento inapropiado\",\r\n  \"blockedAt\": \"2025-04-05T00:00:00Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/blocked-users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "blocked-users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get blocked user by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response has expected properties\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json).to.have.property('userId');\r",
+                  "        pm.expect(json).to.have.property('reason');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/blocked-users/{{blockedUserId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "blocked-users",
+                "{{blockedUserId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update blocked user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response shows updated reason\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json.reason).to.eql(\"Motivo actualizado\");\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"reason\": \"Motivo actualizado\",\r\n  \"blockedAt\": \"2025-04-06T00:00:00Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/blocked-users/{{blockedUserId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "blocked-users",
+                "{{blockedUserId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete blocked user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/blocked-users/{{blockedUserId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "blocked-users",
+                "{{blockedUserId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get active blocks by user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is array (puede estar vacío)\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/blocked-users/active/{{userId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "blocked-users",
+                "active",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get blocks by blocker",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/blocked-users/blocker/{{blockerId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "blocked-users",
+                "blocker",
+                "{{blockerId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check if user is blocked",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Returns boolean or object with blocked status\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    // Puede ser { blocked: true } o directamente true/false\r",
+                  "    pm.expect(json).to.have.property('blocked');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/blocked-users/check/{{userId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "blocked-users",
+                "check",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Expire old blocks",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Returns count of expired\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('expiredCount');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/blocked-users/expire-old",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "blocked-users",
+                "expire-old"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get expired blocks",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/blocked-users/expired",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "blocked-users",
+                "expired"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get block statistics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Returns stats object\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property('totalBlocked');\r",
+                  "    pm.expect(json).to.have.property('activeBlocked');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/blocked-users/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "blocked-users",
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unblock user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/blocked-users/unblock/{{userId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "blocked-users",
+                "unblock",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get blocks by user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/blocked-users/user/{{userId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "blocked-users",
+                "user",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Creative Areas",
+      "item": [
+        {
+          "name": "Get all creative areas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/creative-areas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "creative-areas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create a creative area",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 201) {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.test(\"Response contains created area\", function () {\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json.area).to.eql(\"UX Writing\");\r",
+                  "    });\r",
+                  "    pm.collectionVariables.set(\"creativeAreaId\", json.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"area\": \"UX Writing\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/creative-areas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "creative-areas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get creative area by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response has expected properties\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property('id');\r",
+                  "    pm.expect(json).to.have.property('area');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/creative-areas/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "creative-areas",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update a creative area",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response shows updated area\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json.area).to.eql(\"UI Design\");\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"area\": \"UI Design\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/creative-areas/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "creative-areas",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a creative area",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/creative-areas/4",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "creative-areas",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Exercise History",
+      "item": [
+        {
+          "name": "Get all exercise history",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response is an array\", function () {\r",
+                  "        pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-history",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create an exercise history",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 201) {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.test(\"Response contains created record\", function () {\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json.exerciseId).to.eql(1);\r",
+                  "    });\r",
+                  "    pm.collectionVariables.set(\"historyId\", json.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"userId\": 1,\r\n  \"exerciseId\": 2,\r\n  \"completedAt\": \"2025-04-05T10:00:00Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/exercise-history",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get exercise history by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response has expected properties\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json).to.have.property('userId');\r",
+                  "        pm.expect(json).to.have.property('exerciseId');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-history/{{historyId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history",
+                "{{historyId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update an exercise history",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response shows updated date\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json.completedAt).to.not.be.null;\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"completedAt\": \"2025-04-06T15:30:00Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/exercise-history/{{historyId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history",
+                "{{historyId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete an exercise history",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-history/{{historyId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history",
+                "{{historyId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get records by date range",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-history/date-range?start=2025-04-01&end=2025-04-07",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history",
+                "date-range"
+              ],
+              "query": [
+                {
+                  "key": "start",
+                  "value": "2025-04-01"
+                },
+                {
+                  "key": "end",
+                  "value": "2025-04-07"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get records by exercise ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-history/exercise/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history",
+                "exercise",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get my exercise history",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-history/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete my entire exercise history",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-history/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add an exercise to my history",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "pm.test(\"Record created for current user\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property('id');\r",
+                  "    pm.expect(json.exerciseId).to.eql(1);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"completedAt\": \"2025-04-05T10:00:00Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/exercise-history/me/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history",
+                "me",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get my current streak",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response contains streak count\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property('streak');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-history/me/streak",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history",
+                "me",
+                "streak"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get my today's record",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is array or object\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-history/me/today",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history",
+                "me",
+                "today"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get my weekly history",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-history/me/week",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history",
+                "me",
+                "week"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get global statistics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response has stats properties\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property('totalExercises');\r",
+                  "    pm.expect(json).to.have.property('totalUsers');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-history/stats/global",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history",
+                "stats",
+                "global"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get my statistics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response has user stats\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property('completedCount');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-history/stats/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history",
+                "stats",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get statistics by user ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response contains stats for user\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('userId');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-history/stats/user/3",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history",
+                "stats",
+                "user",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get records by user ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response is an array\", function () {\r",
+                  "        pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-history/user/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history",
+                "user",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete all records of a user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-history/user/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-history",
+                "user",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Exercise Types",
+      "item": [
+        {
+          "name": "Get all exercise types",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-types",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-types"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create an exercise type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 201) {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.test(\"Response contains created exercise type\", function () {\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json.name).to.eql(\"Cardio\");\r",
+                  "    });\r",
+                  "    pm.collectionVariables.set(\"exerciseTypeId\", json.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Cardio\",\r\n  \"description\": \"Ejercicios cardiovasculares\",\r\n  \"type\": \"Ejercitarse\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/exercise-types",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-types"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get exercise type by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response has expected properties\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property('id');\r",
+                  "    pm.expect(json).to.have.property('name');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-types/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-types",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update an exercise type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response shows updated data\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json.name).to.eql(\"Cardio Avanzado\");\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Cardio Avanzado\",\r\n  \"description\": \"Ejercicios cardiovasculares avanzados\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/exercise-types/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-types",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete an exercise type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exercise-types/4",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exercise-types",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Favorites",
+      "item": [
+        {
+          "name": "Get all favorites",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response is an array\", function () {\r",
+                  "        pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/favorites",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "favorites"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create a favorite",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 201) {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.test(\"Response contains created favorite\", function () {\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json.userId).to.eql(1);\r",
+                  "        pm.expect(json.exerciseId).to.eql(2);\r",
+                  "    });\r",
+                  "    pm.collectionVariables.set(\"favoriteId\", json.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"userId\": 1,\r\n  \"exerciseId\": 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/favorites",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "favorites"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get favorite by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response has expected properties\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json).to.have.property('userId');\r",
+                  "        pm.expect(json).to.have.property('exerciseId');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/favorites/{{favoriteId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "favorites",
+                "{{favoriteId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update a favorite",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response shows updated exerciseId\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json.exerciseId).to.eql(3);\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"exerciseId\": 3\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/favorites/{{favoriteId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "favorites",
+                "{{favoriteId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a favorite by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/favorites/{{favoriteId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "favorites",
+                "{{favoriteId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check if a user has favorited an exercise",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Returns boolean or object with isFavorite\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property('isFavorite');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/favorites/check/1/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "favorites",
+                "check",
+                "1",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get favorites by exercise ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/favorites/exercise/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "favorites",
+                "exercise",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle favorite",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response indicates toggled status\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('favorited');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/favorites/toggle/1/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "favorites",
+                "toggle",
+                "1",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get favorites by user ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response is an array of favorites\", function () {\r",
+                  "        pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/favorites/user/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "favorites",
+                "user",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a specific favorite by user and exercise",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/favorites/user/1/exercise/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "favorites",
+                "user",
+                "1",
+                "exercise",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Permissions",
+      "item": [
+        {
+          "name": "Get all permissions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/permissions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "permissions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create a permission",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 201) {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.test(\"Response contains created permission\", function () {\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json.name).to.eql(\"delete_comments\");\r",
+                  "    });\r",
+                  "    pm.collectionVariables.set(\"permissionId\", json.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"delete_comments\",\r\n  \"description\": \"Permite eliminar comentarios de cualquier usuario\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/permissions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "permissions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get permission by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response has expected properties\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property('id');\r",
+                  "    pm.expect(json).to.have.property('name');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/permissions/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "permissions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update a permission",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response shows updated data\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json.name).to.eql(\"moderate_comments\");\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}} ",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"moderate_comments\",\r\n  \"description\": \"Permite moderar comentarios (editar/eliminar)\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/permissions/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "permissions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a permission",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/permissions/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "permissions",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profiles",
+      "item": [
+        {
+          "name": "Get all profiles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response is an array\", function () {\r",
+                  "        pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/profiles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "profiles"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create a profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 201) {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.test(\"Response contains created profile\", function () {\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json.userId).to.eql(1);\r",
+                  "    });\r",
+                  "    pm.collectionVariables.set(\"profileId\", json.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"userId\": 2,\r\n  \"creativeAreaId\": 2,\r\n  \"bio\": \"Apasionada por el diseño UX\",\r\n  \"location\": \"Medellín\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/profiles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "profiles"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get profile by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response has expected properties\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json).to.have.property('userId');\r",
+                  "        pm.expect(json).to.have.property('bio');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/profiles/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "profiles",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update a profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response shows updated bio\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json.bio).to.eql(\"Nueva biografía actualizada\");\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"bio\": \"Nueva biografía actualizada\",\r\n  \"avatarUrl\": \"https://ejemplo.com/nuevo-avatar.jpg\",\r\n  \"creativeAreaId\": 3\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/profiles/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "profiles",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/profiles/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "profiles",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get profile by user ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response has user profile data\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property('id');\r",
+                  "    pm.expect(json).to.have.property('userId');\r",
+                  "    pm.expect(json.userId).to.eql(1);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/profiles/user/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "profiles",
+                "user",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Get all reports",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response is an array\", function () {\r",
+                  "        pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create a report",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 201) {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.test(\"Response contains created report\", function () {\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json.commentId).to.eql(5);\r",
+                  "    });\r",
+                  "    pm.collectionVariables.set(\"reportId\", json.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"commentId\": 2,\r\n  \"reportedBy\": 1,\r\n  \"reason\": \"Contenido inapropiado\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get report by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response has expected properties\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json).to.have.property('commentId');\r",
+                  "        pm.expect(json).to.have.property('reason');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/{{reportId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "{{reportId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update a report",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response shows updated reason\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json.reason).to.eql(\"Razón actualizada: spam repetitivo\");\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.api+json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"reason\": \"Razón actualizada: spam repetitivo\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/reports/{{reportId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "{{reportId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a report",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/{{reportId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "{{reportId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update report status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Status updated\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json.status).to.eql(\"approved\");\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"status\": \"approved\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/reports/{{reportId}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "{{reportId}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get reports by comment ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/comment/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "comment",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete reports by comment ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/comment/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "comment",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get reports by status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/status/pending",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "status",
+                "pending"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get reports by user ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/user/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "user",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        {
+          "name": "Get all roles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rol",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rol"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create a role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 201) {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.test(\"Response contains created role\", function () {\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json.name).to.eql(\"moderator\");\r",
+                  "    });\r",
+                  "    pm.collectionVariables.set(\"roleId\", json.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"moderator\",\r\n  \"description\": \"Usuario con permisos de moderación\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/rol",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rol"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get role by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response has expected properties\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property('id');\r",
+                  "    pm.expect(json).to.have.property('name');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rol/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rol",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update a role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response shows updated name\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json.name).to.eql(\"super_moderator\");\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"super_moderator\",\r\n  \"description\": \"Moderador con permisos extendidos\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/rol/3",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rol",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rol/3",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rol",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Rol-Permissions",
+      "item": [
+        {
+          "name": "Get all rol-permissions association",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response is an array\", function () {\r",
+                  "        pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rol-permissions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rol-permissions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create a rol-permission association",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 201) {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.test(\"Response contains created association\", function () {\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json.rolId).to.eql(1);\r",
+                  "        pm.expect(json.permissionId).to.eql(3);\r",
+                  "    });\r",
+                  "    pm.collectionVariables.set(\"rolPermId\", json.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"rolId\": 1,\r\n  \"permissionId\": 4\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/rol-permissions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rol-permissions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get rol-permission association by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response has expected properties\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json).to.have.property('rolId');\r",
+                  "        pm.expect(json).to.have.property('permissionId');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rol-permissions/{{rolPermId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rol-permissions",
+                "{{rolPermId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update a rol-permission association",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response shows updated permissionId\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json.permissionId).to.eql(5);\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"permissionId\": 5\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/rol-permissions/{{rolPermId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rol-permissions",
+                "{{rolPermId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a rol-permission association",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rol-permissions/{{rolPermId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rol-permissions",
+                "{{rolPermId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get permissions by role ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array of permissions\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rol-permissions/rol/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rol-permissions",
+                "rol",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User Achievements",
+      "item": [
+        {
+          "name": "Get all user-achievements",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response is an array\", function () {\r",
+                  "        pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user-achievements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-achievements"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create a user-achievement",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 201) {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.test(\"Response contains created user-achievement\", function () {\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json.userId).to.eql(1);\r",
+                  "        pm.expect(json.achievementId).to.eql(2);\r",
+                  "    });\r",
+                  "    pm.collectionVariables.set(\"userAchievementId\", json.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"userId\": 1,\r\n  \"achievementId\": 2,\r\n  \"dateOfAchievement\": \"2025-04-05T10:00:00Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/user-achievements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-achievements"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get user-achievement by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response has expected properties\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('id');\r",
+                  "        pm.expect(json).to.have.property('userId');\r",
+                  "        pm.expect(json).to.have.property('achievementId');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user-achievements/{{userAchievementId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-achievements",
+                "{{userAchievementId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update a user-achievement",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Response shows updated date\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json.dateOfAchievement).to.not.be.null;\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"dateOfAchievement\": \"2025-04-10T15:30:00Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/user-achievements/{{userAchievementId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-achievements",
+                "{{userAchievementId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a user-achievement",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user-achievements/{{userAchievementId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-achievements",
+                "{{userAchievementId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get user-achievements by achievement ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user-achievements/achievement/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-achievements",
+                "achievement",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check if user has a specific achievement",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Returns boolean or object with hasAchievement\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property('hasAchievement');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user-achievements/check/1/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-achievements",
+                "check",
+                "1",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get user-achievements by user ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user-achievements/user/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-achievements",
+                "user",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete all achievements of a user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);\r",
+                  "});\r",
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.test(\"Success message\", function () {\r",
+                  "        const json = pm.response.json();\r",
+                  "        pm.expect(json).to.have.property('message');\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user-achievements/user/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-achievements",
+                "user",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "commentId",
+      "value": ""
+    },
+    {
+      "key": "achievementId",
+      "value": ""
+    },
+    {
+      "key": "blockedUserId",
+      "value": ""
+    },
+    {
+      "key": "blockerId",
+      "value": ""
+    },
+    {
+      "key": "creativeAreaId",
+      "value": ""
+    },
+    {
+      "key": "historyId",
+      "value": ""
+    },
+    {
+      "key": "exerciseTypeId",
+      "value": ""
+    },
+    {
+      "key": "favoriteId",
+      "value": ""
+    },
+    {
+      "key": "reportId",
+      "value": ""
+    },
+    {
+      "key": "roleId",
+      "value": ""
+    },
+    {
+      "key": "rolPermId",
+      "value": ""
+    },
+    {
+      "key": "userAchievementId",
+      "value": ""
+    }
+  ]
+}

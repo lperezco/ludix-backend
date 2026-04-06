@@ -24,28 +24,28 @@ export class ExerciseTypesController {
   constructor(private readonly exerciseTypesService: ExerciseTypesService) {}
 
   @Get()
-  @Permissions('admin', 'user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
   findAll() {
     return this.exerciseTypesService.findAll();
   }
 
   @Get(':id')
-  @Permissions('admin', 'user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.exerciseTypesService.findById(id);
   }
 
   @Post()
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createExerciseTypeDto: CreateExerciseTypeDto) {
     return this.exerciseTypesService.create(createExerciseTypeDto);
   }
 
   @Put(':id')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -55,7 +55,7 @@ export class ExerciseTypesController {
   }
 
   @Delete(':id')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.exerciseTypesService.remove(id);

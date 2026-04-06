@@ -25,28 +25,28 @@ export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
   @Get()
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   findAll() {
     return this.favoritesService.findAll();
   }
 
   @Get('user/:userId')
-  @Permissions('admin', 'user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
   findByUser(@Param('userId', ParseIntPipe) userId: number) {
     return this.favoritesService.findByUser(userId);
   }
 
   @Get('exercise/:exerciseId')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   findByExercise(@Param('exerciseId', ParseIntPipe) exerciseId: number) {
     return this.favoritesService.findByExercise(exerciseId);
   }
 
   @Get('check/:userId/:exerciseId')
-  @Permissions('admin', 'user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
   async checkFavorite(
     @Param('userId', ParseIntPipe) userId: number,
@@ -60,21 +60,21 @@ export class FavoritesController {
   }
 
   @Get(':id')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.favoritesService.findById(id);
   }
 
   @Post()
-  @Permissions('admin', 'user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createFavoriteDto: CreateFavoriteDto) {
     return this.favoritesService.create(createFavoriteDto);
   }
 
   @Patch('toggle/:userId/:exerciseId')
-  @Permissions('admin', 'user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
   toggleFavorite(
     @Param('userId', ParseIntPipe) userId: number,
@@ -84,7 +84,7 @@ export class FavoritesController {
   }
 
   @Put(':id')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -94,14 +94,14 @@ export class FavoritesController {
   }
 
   @Delete(':id')
-  @Permissions('admin')
+  @Permissions('manage_users')
   @HttpCode(HttpStatus.OK)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.favoritesService.remove(id);
   }
 
   @Delete('user/:userId/exercise/:exerciseId')
-  @Permissions('admin', 'user')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
   removeByUserAndExercise(
     @Param('userId', ParseIntPipe) userId: number,

@@ -25,12 +25,8 @@ import { UpdateBlockedUserDto } from './dto/update-blocked-user.dto';
 export class BlockedUsersController {
   constructor(private readonly blockedUsersService: BlockedUsersService) {}
 
-  /**
-   * Obtener todos los bloqueos (con paginación y filtros)
-   * GET /blocked-users?page=1&limit=10&isActive=true&userId=1&blockedBy=1&startDate=2024-01-01&endDate=2024-12-31
-   */
   @Get()
-  @Permissions('admin')
+  @Permissions('block_user')
   @HttpCode(HttpStatus.OK)
   async findAll(
     @Query('page') page?: string,
@@ -52,23 +48,15 @@ export class BlockedUsersController {
     );
   }
 
-  /**
-   * Obtener estadísticas de bloqueos
-   * GET /blocked-users/stats
-   */
   @Get('stats')
-  @Permissions('admin')
+  @Permissions('block_user')
   @HttpCode(HttpStatus.OK)
   async getStats() {
     return this.blockedUsersService.getStats();
   }
 
-  /**
-   * Obtener bloqueos de un usuario
-   * GET /blocked-users/user/:userId
-   */
   @Get('user/:userId')
-  @Permissions('admin')
+  @Permissions('block_user')
   @HttpCode(HttpStatus.OK)
   async findByUser(
     @Param('userId', ParseIntPipe) userId: number,
@@ -84,12 +72,8 @@ export class BlockedUsersController {
     );
   }
 
-  /**
-   * Obtener bloqueos realizados por un usuario
-   * GET /blocked-users/blocker/:blockerId
-   */
   @Get('blocker/:blockerId')
-  @Permissions('admin')
+  @Permissions('block_user')
   @HttpCode(HttpStatus.OK)
   async findByBlocker(
     @Param('blockerId', ParseIntPipe) blockerId: number,
@@ -103,12 +87,8 @@ export class BlockedUsersController {
     );
   }
 
-  /**
-   * Verificar si un usuario está bloqueado
-   * GET /blocked-users/check/:userId
-   */
   @Get('check/:userId')
-  @Permissions('admin', 'moderator', 'user')
+  @Permissions('block_user')
   @HttpCode(HttpStatus.OK)
   async isUserBlocked(@Param('userId', ParseIntPipe) userId: number) {
     const isBlocked = await this.blockedUsersService.isUserBlocked(userId);
@@ -121,23 +101,15 @@ export class BlockedUsersController {
     };
   }
 
-  /**
-   * Obtener bloqueo activo de un usuario
-   * GET /blocked-users/active/:userId
-   */
   @Get('active/:userId')
-  @Permissions('admin')
+  @Permissions('block_user')
   @HttpCode(HttpStatus.OK)
   async getActiveBlock(@Param('userId', ParseIntPipe) userId: number) {
     return this.blockedUsersService.getActiveBlock(userId);
   }
 
-  /**
-   * Obtener bloqueos expirados
-   * GET /blocked-users/expired?days=30
-   */
   @Get('expired')
-  @Permissions('admin')
+  @Permissions('block_user')
   @HttpCode(HttpStatus.OK)
   async getExpiredBlocks(@Query('days') days?: string) {
     return this.blockedUsersService.getExpiredBlocks(
@@ -145,56 +117,36 @@ export class BlockedUsersController {
     );
   }
 
-  /**
-   * Obtener un bloqueo por ID
-   * GET /blocked-users/:id
-   */
   @Get(':id')
-  @Permissions('admin')
+  @Permissions('block_user')
   @HttpCode(HttpStatus.OK)
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.blockedUsersService.findById(id);
   }
 
-  /**
-   * Bloquear un usuario
-   * POST /blocked-users
-   */
   @Post()
-  @Permissions('admin')
+  @Permissions('block_user')
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createBlockedUserDto: CreateBlockedUserDto) {
     return this.blockedUsersService.create(createBlockedUserDto);
   }
 
-  /**
-   * Desbloquear un usuario
-   * PATCH /blocked-users/unblock/:userId
-   */
   @Patch('unblock/:userId')
-  @Permissions('admin')
+  @Permissions('block_user')
   @HttpCode(HttpStatus.OK)
   async unblock(@Param('userId', ParseIntPipe) userId: number) {
     return this.blockedUsersService.unblock(userId);
   }
 
-  /**
-   * Expirar bloqueos antiguos
-   * PATCH /blocked-users/expire-old?days=30
-   */
   @Patch('expire-old')
-  @Permissions('admin')
+  @Permissions('block_user')
   @HttpCode(HttpStatus.OK)
   async expireOldBlocks(@Query('days') days?: string) {
     return this.blockedUsersService.expireOldBlocks(days ? parseInt(days) : 30);
   }
 
-  /**
-   * Actualizar un bloqueo
-   * PUT /blocked-users/:id
-   */
   @Put(':id')
-  @Permissions('admin')
+  @Permissions('block_user')
   @HttpCode(HttpStatus.OK)
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -203,12 +155,8 @@ export class BlockedUsersController {
     return this.blockedUsersService.update(id, updateBlockedUserDto);
   }
 
-  /**
-   * Eliminar un bloqueo
-   * DELETE /blocked-users/:id
-   */
   @Delete(':id')
-  @Permissions('admin')
+  @Permissions('block_user')
   @HttpCode(HttpStatus.OK)
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.blockedUsersService.remove(id);

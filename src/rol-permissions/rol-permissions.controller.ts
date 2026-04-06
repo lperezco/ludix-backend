@@ -22,31 +22,31 @@ export class RolPermissionsController {
   constructor(private readonly service: RolPermissionsService) {}
 
   @Get()
-  @Permissions('read_rol_permission')
+  @Permissions('manage_users')
   findAll() {
     return this.service.findAll();
   }
 
   @Get(':id')
-  @Permissions('read_rol_permission')
+  @Permissions('manage_users')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findById(id);
   }
 
   @Get('rol/:rolId')
-  @Permissions('read_rol_permission')
+  @Permissions('manage_users')
   findByRol(@Param('rolId', ParseIntPipe) rolId: number) {
     return this.service.findByRol(rolId);
   }
 
   @Post()
-  @Permissions('create_rol_permission')
+  @Permissions('manage_users')
   create(@Body() createDto: CreateRolPermissionDto) {
     return this.service.create(createDto);
   }
 
   @Put(':id')
-  @Permissions('update_rol_permission')
+  @Permissions('manage_users')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateRolPermissionDto,
@@ -55,7 +55,7 @@ export class RolPermissionsController {
   }
 
   @Delete(':id')
-  @Permissions('delete_rol_permission')
+  @Permissions('manage_users')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);
   }

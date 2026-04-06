@@ -24,27 +24,25 @@ export class UserAchievementsController {
   constructor(private readonly service: UserAchievementsService) {}
 
   @Get()
-  @Permissions('admin')
+  @Permissions('manage_achievements')
   findAll() {
     return this.service.findAll();
   }
 
   @Get('user/:userId')
-  @Permissions('admin', 'user')
+  @Permissions('view_stats')
   findByUser(@Param('userId', ParseIntPipe) userId: number) {
     return this.service.findByUser(userId);
   }
 
   @Get('achievement/:achievementId')
-  @Permissions('admin')
-  findByAchievement(
-    @Param('achievementId', ParseIntPipe) achievementId: number,
-  ) {
+  @Permissions('manage_achievements')
+  findByAchievement(@Param('achievementId', ParseIntPipe) achievementId: number) {
     return this.service.findByAchievement(achievementId);
   }
 
   @Get('check/:userId/:achievementId')
-  @Permissions('admin', 'user')
+  @Permissions('view_stats')
   async checkAchievement(
     @Param('userId', ParseIntPipe) userId: number,
     @Param('achievementId', ParseIntPipe) achievementId: number,
@@ -54,35 +52,32 @@ export class UserAchievementsController {
   }
 
   @Get(':id')
-  @Permissions('admin')
+  @Permissions('manage_achievements')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findById(id);
   }
 
   @Post()
-  @Permissions('admin')
+  @Permissions('manage_achievements')
   @HttpCode(HttpStatus.CREATED)
   create(@Body() dto: CreateUserAchievementDto) {
     return this.service.create(dto);
   }
 
   @Put(':id')
-  @Permissions('admin')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateUserAchievementDto,
-  ) {
+  @Permissions('manage_achievements')
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserAchievementDto) {
     return this.service.update(id, dto);
   }
 
   @Delete(':id')
-  @Permissions('admin')
+  @Permissions('manage_achievements')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);
   }
 
   @Delete('user/:userId')
-  @Permissions('admin')
+  @Permissions('manage_achievements')
   removeAllByUser(@Param('userId', ParseIntPipe) userId: number) {
     return this.service.removeAllByUser(userId);
   }

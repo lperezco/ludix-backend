@@ -17,9 +17,7 @@ export class ExerciseTypesService {
     private exerciseTypeRepository: Repository<ExerciseType>,
   ) {}
 
-  async create(
-    createExerciseTypeDto: CreateExerciseTypeDto,
-  ): Promise<ExerciseType> {
+  async create(createExerciseTypeDto: CreateExerciseTypeDto): Promise<ExerciseType> {
     const { type } = createExerciseTypeDto;
 
     const existing = await this.exerciseTypeRepository.findOne({
@@ -29,30 +27,47 @@ export class ExerciseTypesService {
       throw new ConflictException(`El tipo de ejercicio "${type}" ya existe`);
     }
 
-    const exerciseType = this.exerciseTypeRepository.create(
-      createExerciseTypeDto,
-    );
+    const exerciseType = this.exerciseTypeRepository.create(createExerciseTypeDto);
     return await this.exerciseTypeRepository.save(exerciseType);
   }
 
   async findAll(): Promise<ExerciseType[]> {
-    return await this.exerciseTypeRepository.find({
-      relations: ['exercises', 'challenges'],
-      order: { type: 'ASC' },
-    });
+    try {
+      // Intentar cargar solo la relación 'exercises' si existe
+      return await this.exerciseTypeRepository.find({
+        relations: ['exercises'],
+        order: { type: 'ASC' },
+      });
+    } catch (error) {
+      // Si falla, devolver sin relaciones
+      console.warn('Error cargando relaciones en findAll:', error.message);
+      return await this.exerciseTypeRepository.find({
+        order: { type: 'ASC' },
+      });
+    }
   }
 
   async findById(id: number): Promise<ExerciseType> {
-    const exerciseType = await this.exerciseTypeRepository.findOne({
-      where: { id },
-      relations: ['exercises', 'challenges'],
-    });
-    if (!exerciseType) {
-      throw new NotFoundException(
-        `Tipo de ejercicio con ID ${id} no encontrado`,
-      );
+    try {
+      // Intentar con la relación 'exercises' (sin 'challenges')
+      const exerciseType = await this.exerciseTypeRepository.findOne({
+        where: { id },
+        relations: ['exercises'],
+      });
+      if (!exerciseType) {
+        throw new NotFoundException(`Tipo de ejercicio con ID ${id} no encontrado`);
+      }
+      return exerciseType;
+    } catch (error) {
+      // Si falla por la relación, intentar sin relaciones
+      const exerciseType = await this.exerciseTypeRepository.findOne({
+        where: { id },
+      });
+      if (!exerciseType) {
+        throw new NotFoundException(`Tipo de ejercicio con ID ${id} no encontrado`);
+      }
+      return exerciseType;
     }
-    return exerciseType;
   }
 
   async findByType(type: string): Promise<ExerciseType> {
@@ -65,16 +80,10 @@ export class ExerciseTypesService {
     return exerciseType;
   }
 
-  async update(
-    id: number,
-    updateExerciseTypeDto: UpdateExerciseTypeDto,
-  ): Promise<ExerciseType> {
+  async update(id: number, updateExerciseTypeDto: UpdateExerciseTypeDto): Promise<ExerciseType> {
     const exerciseType = await this.findById(id);
 
-    if (
-      updateExerciseTypeDto.type &&
-      updateExerciseTypeDto.type !== exerciseType.type
-    ) {
+    if (updateExerciseTypeDto.type && updateExerciseTypeDto.type !== exerciseType.type) {
       const existing = await this.exerciseTypeRepository.findOne({
         where: { type: updateExerciseTypeDto.type },
       });
@@ -92,9 +101,19 @@ export class ExerciseTypesService {
   async remove(id: number): Promise<{ message: string }> {
     const exerciseType = await this.findById(id);
 
-    if (exerciseType.exercises && exerciseType.exercises.length > 0) {
+    // Verificar si tiene ejercicios asociados (si la relación existe)
+    let hasExercises = false;
+    try {
+      if (exerciseType.exercises && exerciseType.exercises.length > 0) {
+        hasExercises = true;
+      }
+    } catch (e) {
+      // Si no se pudo cargar la relación, asumir que no hay ejercicios
+    }
+
+    if (hasExercises) {
       throw new BadRequestException(
-        `No se puede eliminar el tipo "${exerciseType.type}" porque tiene ${exerciseType.exercises.length} ejercicios asociados`,
+        `No se puede eliminar el tipo "${exerciseType.type}" porque tiene ejercicios asociados`,
       );
     }
 

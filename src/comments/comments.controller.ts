@@ -27,28 +27,28 @@ export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
   @Get()
-  @Permissions('read_comment')
+  @Permissions('manage_comments')   // antes 'read_comment'
   @ApiOperation({ summary: 'Obtener todos los comentarios' })
   findAll() {
     return this.commentsService.findAll();
   }
 
   @Get('exercise/:exerciseId')
-  @Permissions('read_comment')
+  @Permissions('manage_comments')   // antes 'read_comment'
   @ApiOperation({ summary: 'Obtener comentarios por ejercicio' })
   findByExercise(@Param('exerciseId', ParseIntPipe) exerciseId: number) {
     return this.commentsService.findByExercise(exerciseId);
   }
 
   @Get('user/:userId')
-  @Permissions('read_comment')
+  @Permissions('manage_comments')   // antes 'read_comment'
   @ApiOperation({ summary: 'Obtener comentarios por usuario' })
   findByUser(@Param('userId', ParseIntPipe) userId: number) {
     return this.commentsService.findByUser(userId);
   }
 
   @Get(':id')
-  @Permissions('read_comment')
+  @Permissions('manage_comments')   // antes 'read_comment'
   @ApiOperation({ summary: 'Obtener comentario por ID' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.commentsService.findById(id);
@@ -63,7 +63,7 @@ export class CommentsController {
   }
 
   @Put(':id')
-  @Permissions('update_comment')
+  @Permissions('manage_comments')   // antes 'update_comment'
   @ApiOperation({ summary: 'Actualizar comentario' })
   update(@Param('id', ParseIntPipe) id: number, @Body() updateCommentDto: UpdateCommentDto) {
     return this.commentsService.update(id, updateCommentDto);

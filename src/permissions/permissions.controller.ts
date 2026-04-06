@@ -22,25 +22,25 @@ export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
   @Get()
-  @Permissions('read_permission')
+  @Permissions('manage_users')
   findAll() {
     return this.permissionsService.findAll();
   }
 
   @Get(':id')
-  @Permissions('read_permission')
+  @Permissions('manage_users')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.permissionsService.findById(id);
   }
 
   @Post()
-  @Permissions('create_permission')
+  @Permissions('manage_users')
   create(@Body() createDto: CreatePermissionDto) {
     return this.permissionsService.create(createDto);
   }
 
   @Put(':id')
-  @Permissions('update_permission')
+  @Permissions('manage_users')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdatePermissionDto,
@@ -49,7 +49,7 @@ export class PermissionsController {
   }
 
   @Delete(':id')
-  @Permissions('delete_permission')
+  @Permissions('manage_users')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.permissionsService.remove(id);
   }

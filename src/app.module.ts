@@ -32,15 +32,17 @@ import { UserAchievementsModule } from './user-achievements/user-achievements.mo
       useFactory: (configService: ConfigService) => {
         const databaseUrl = configService.get('DATABASE_URL');
         if (databaseUrl) {
+          console.log('✅ Conectando a Railway con DATABASE_URL');
           return {
             type: 'postgres',
             url: databaseUrl,
-            entities: [__dirname + '/**/*.entity{.ts,.js}'],
+            entities: ['dist/**/*.entity.js'], // Para Railway (producción)
             synchronize: configService.get('DB_SYNCHRONIZE') === 'true',
             logging: configService.get('DB_LOGGING') === 'true',
+            ssl: { rejectUnauthorized: false },
           };
         }
-        // Fallback para desarrollo local con variables separadas
+        console.log('📦 Usando configuración local para desarrollo');
         return {
           type: 'postgres',
           host: configService.get('DB_HOST', 'localhost'),
@@ -48,7 +50,7 @@ import { UserAchievementsModule } from './user-achievements/user-achievements.mo
           username: configService.get('DB_USERNAME', 'postgres'),
           password: configService.get('DB_PASSWORD', 'postgres'),
           database: configService.get('DB_DATABASE', 'ludix'),
-          entities: [__dirname + '/**/*.entity{.ts,.js}'],
+          entities: ['dist/**/*.entity.js'], // Para desarrollo local
           synchronize: configService.get('DB_SYNCHRONIZE') === 'true',
           logging: configService.get('DB_LOGGING') === 'true',
         };

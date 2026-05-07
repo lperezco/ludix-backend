@@ -1,5 +1,5 @@
 -- ======================================================
--- LUDIX - DATOS INICIALES COMPLETOS (16 SECCIONES)
+-- LUDIX - DATOS INICIALES (SIN DESCRIPTION EN creative_areas)
 -- ======================================================
 
 -- 1. Roles
@@ -42,7 +42,7 @@ INSERT INTO permissions (id, name, description) VALUES
 INSERT INTO "rol_permissions" ("rolId", "permissionId")
 SELECT 1, id FROM permissions;
 
--- 4. Asignar permisos básicos al rol user (incluye view_exercises)
+-- 4. Asignar permisos básicos al rol user
 INSERT INTO "rol_permissions" ("rolId", "permissionId") VALUES
 (2, 6),   -- view_stats
 (2, 7),   -- create_comment
@@ -55,13 +55,13 @@ INSERT INTO users (id, email, password, name, "rolId") VALUES
 (2, 'user1@ludix.com', '$2b$10$Lg6GkYkFZwRgVnQnXqNk9eJ9lN9qo8uLOickgx2ZMRZoMy.Mr/.cF', 'Laura Diseñadora', 2),
 (3, 'user2@ludix.com', '$2b$10$Lg6GkYkFZwRgVnQnXqNk9eJ9lN9qo8uLOickgx2ZMRZoMy.Mr/.cF', 'Carlos Ilustrador', 2);
 
--- 6. Áreas creativas
-INSERT INTO creative_areas (id, area, description) VALUES
-(1, 'Diseño Gráfico', 'Diseño de identidad, branding, editorial'),
-(2, 'UI/UX', 'Diseño de interfaces y experiencia de usuario'),
-(3, 'Ilustración', 'Ilustración digital y tradicional'),
-(4, 'Animación', 'Animación 2D y 3D'),
-(5, 'Diseño Industrial', 'Producto y objetos');
+-- 6. Áreas creativas (SIN columna description)
+INSERT INTO creative_areas (id, area) VALUES
+(1, 'Diseño Gráfico'),
+(2, 'UI/UX'),
+(3, 'Ilustración'),
+(4, 'Animación'),
+(5, 'Diseño Industrial');
 
 -- 7. Perfiles
 INSERT INTO profiles (id, "userId", "creativeAreaId", bio, location) VALUES
@@ -112,16 +112,3 @@ INSERT INTO user_achievements (id, "userId", "achievementId", "dateOfAchievement
 (1, 2, 1, '2025-04-01'),
 (2, 2, 3, '2025-04-02'),
 (3, 3, 2, '2025-04-01');
-
--- 15. Reiniciar secuencias (opcional, para que los IDs sigan correctamente)
-SELECT setval('rol_id_seq', COALESCE((SELECT MAX(id) FROM rol), 1));
-SELECT setval('permissions_id_seq', COALESCE((SELECT MAX(id) FROM permissions), 1));
-SELECT setval('users_id_seq', COALESCE((SELECT MAX(id) FROM users), 1));
-SELECT setval('creative_areas_id_seq', COALESCE((SELECT MAX(id) FROM creative_areas), 1));
-SELECT setval('profiles_id_seq', COALESCE((SELECT MAX(id) FROM profiles), 1));
-SELECT setval('exercise_types_id_seq', COALESCE((SELECT MAX(id) FROM exercise_types), 1));
-SELECT setval('exercises_id_seq', COALESCE((SELECT MAX(id) FROM exercises), 1));
-SELECT setval('achievements_id_seq', COALESCE((SELECT MAX(id) FROM achievements), 1));
-SELECT setval('exercise_history_id_seq', COALESCE((SELECT MAX(id) FROM exercise_history), 1));
-SELECT setval('favorites_id_seq', COALESCE((SELECT MAX(id) FROM favorites), 1));
-SELECT setval('user_achievements_id_seq', COALESCE((SELECT MAX(id) FROM user_achievements), 1));

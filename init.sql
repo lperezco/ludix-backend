@@ -1,18 +1,13 @@
 -- ======================================================
--- LUDIX - DATOS INICIALES COMPLETOS (VERSIÓN FINAL)
--- Incluye todos los permisos, incluido view_exercises para rol user
+-- LUDIX - DATOS INICIALES COMPLETOS (16 SECCIONES)
 -- ======================================================
 
--- 1. Agregar columna description a creative_areas si no existe
-ALTER TABLE creative_areas ADD COLUMN IF NOT EXISTS description TEXT;
-
--- 2. Roles
+-- 1. Roles
 INSERT INTO rol (id, name, description) VALUES
 (1, 'admin', 'Administrador del sistema'),
-(2, 'user', 'Usuario normal')
-ON CONFLICT (id) DO NOTHING;
+(2, 'user', 'Usuario normal');
 
--- 3. Permisos (todos los necesarios, incluyendo view_exercises)
+-- 2. Permisos
 INSERT INTO permissions (id, name, description) VALUES
 (1, 'create_exercise', 'Crear ejercicios'),
 (2, 'edit_exercise', 'Editar ejercicios'),
@@ -41,97 +36,84 @@ INSERT INTO permissions (id, name, description) VALUES
 (25, 'view_users', 'Ver lista de usuarios'),
 (26, 'view_user', 'Ver detalle de un usuario'),
 (27, 'read_users', 'Leer usuarios'),
-(28, 'view_exercises', 'Ver ejercicios')
-ON CONFLICT (id) DO NOTHING;
+(28, 'view_exercises', 'Ver ejercicios');
 
--- 4. Asignar TODOS los permisos al rol admin (rolId=1)
+-- 3. Asignar TODOS los permisos al rol admin
 INSERT INTO "rol_permissions" ("rolId", "permissionId")
-SELECT 1, id FROM permissions
-ON CONFLICT ("rolId", "permissionId") DO NOTHING;
+SELECT 1, id FROM permissions;
 
--- 5. Asignar permisos básicos al rol user (rolId=2) – INCLUYE view_exercises (28)
+-- 4. Asignar permisos básicos al rol user (incluye view_exercises)
 INSERT INTO "rol_permissions" ("rolId", "permissionId") VALUES
 (2, 6),   -- view_stats
 (2, 7),   -- create_comment
 (2, 8),   -- delete_comment
-(2, 28)   -- view_exercises (¡importante!)
-ON CONFLICT ("rolId", "permissionId") DO NOTHING;
+(2, 28);  -- view_exercises
 
--- 6. Usuarios
+-- 5. Usuarios
 INSERT INTO users (id, email, password, name, "rolId") VALUES
 (1, 'admin@ludix.com', '$2b$10$N9qo8uLOickgx2ZMRZoMy.Mr/.cFZJ2W8Pq7XpQoQ3WmFqR0tXxJu', 'Admin Principal', 1),
 (2, 'user1@ludix.com', '$2b$10$Lg6GkYkFZwRgVnQnXqNk9eJ9lN9qo8uLOickgx2ZMRZoMy.Mr/.cF', 'Laura Diseñadora', 2),
-(3, 'user2@ludix.com', '$2b$10$Lg6GkYkFZwRgVnQnXqNk9eJ9lN9qo8uLOickgx2ZMRZoMy.Mr/.cF', 'Carlos Ilustrador', 2)
-ON CONFLICT (email) DO NOTHING;
+(3, 'user2@ludix.com', '$2b$10$Lg6GkYkFZwRgVnQnXqNk9eJ9lN9qo8uLOickgx2ZMRZoMy.Mr/.cF', 'Carlos Ilustrador', 2);
 
--- 7. Áreas creativas
+-- 6. Áreas creativas
 INSERT INTO creative_areas (id, area, description) VALUES
 (1, 'Diseño Gráfico', 'Diseño de identidad, branding, editorial'),
 (2, 'UI/UX', 'Diseño de interfaces y experiencia de usuario'),
 (3, 'Ilustración', 'Ilustración digital y tradicional'),
 (4, 'Animación', 'Animación 2D y 3D'),
-(5, 'Diseño Industrial', 'Producto y objetos')
-ON CONFLICT (id) DO NOTHING;
+(5, 'Diseño Industrial', 'Producto y objetos');
 
--- 8. Perfiles
+-- 7. Perfiles
 INSERT INTO profiles (id, "userId", "creativeAreaId", bio, location) VALUES
 (1, 1, 1, 'Administrador y diseñador', 'Bogotá'),
 (2, 2, 2, 'Apasionada por el UX', 'Medellín'),
-(3, 3, 3, 'Ilustradora freelance', 'Cali')
-ON CONFLICT (id) DO NOTHING;
+(3, 3, 3, 'Ilustradora freelance', 'Cali');
 
--- 9. Tipos de ejercicio
+-- 8. Tipos de ejercicio
 INSERT INTO exercise_types (id, type, description) VALUES
 (1, 'Desbloqueo', 'Ejercicios para desbloquear la creatividad'),
 (2, 'Ideación', 'Técnicas para generar ideas'),
-(3, 'Pausa activa', 'Estiramientos y movimiento')
-ON CONFLICT (id) DO NOTHING;
+(3, 'Pausa activa', 'Estiramientos y movimiento');
 
--- 10. Ejercicios
+-- 9. Ejercicios
 INSERT INTO exercises (id, name, description, duration, "exerciseTypeId", "createdBy") VALUES
 (1, 'Crazy 8''s', 'Dobla una hoja en 8 partes y dibuja una idea en cada una en 8 minutos', 8, 2, 'admin'),
 (2, 'SCAMPER', 'Aplica las 7 preguntas a un objeto o idea', 10, 2, 'admin'),
 (3, 'Estiramiento de manos', 'Ejercicios para liberar tensión en muñecas y dedos', 3, 3, 'admin'),
 (4, 'Dibujo a ciegas', 'Dibuja sin mirar el papel', 5, 1, 'admin'),
 (5, 'Mapa mental', 'Crea un mapa mental sobre un tema', 12, 2, 'admin'),
-(6, 'Pausa de ojos', 'Ejercicios de enfoque visual', 2, 3, 'admin')
-ON CONFLICT (id) DO NOTHING;
+(6, 'Pausa de ojos', 'Ejercicios de enfoque visual', 2, 3, 'admin');
 
--- 11. Logros
+-- 10. Logros
 INSERT INTO achievements (id, name, description, requirement) VALUES
 (1, 'Primer comentario', 'Deja tu primer comentario', 'Crear 1 comentario'),
 (2, 'Racha de 7 días', 'Completa ejercicios 7 días seguidos', '7 días consecutivos'),
-(3, 'Explorador', 'Completa 5 ejercicios diferentes', '5 ejercicios distintos')
-ON CONFLICT (id) DO NOTHING;
+(3, 'Explorador', 'Completa 5 ejercicios diferentes', '5 ejercicios distintos');
 
--- 12. Historial de ejercicios
+-- 11. Historial de ejercicios
 INSERT INTO exercise_history (id, "userId", "exerciseId", "completedAt") VALUES
 (1, 2, 1, '2025-04-01'),
 (2, 2, 3, '2025-04-02'),
-(3, 3, 2, '2025-04-01')
-ON CONFLICT (id) DO NOTHING;
+(3, 3, 2, '2025-04-01');
 
--- 13. Favoritos
+-- 12. Favoritos
 INSERT INTO favorites (id, "userId", "exerciseId") VALUES
 (1, 2, 1),
 (2, 2, 3),
-(3, 3, 2)
-ON CONFLICT (id) DO NOTHING;
+(3, 3, 2);
 
--- 14. Comentarios
+-- 13. Comentarios
 INSERT INTO comments (id, "userId", "exerciseId", content, "createdAt") VALUES
 (1, 2, 1, 'Excelente ejercicio', NOW()),
-(2, 3, 2, 'Muy útil', NOW())
-ON CONFLICT (id) DO NOTHING;
+(2, 3, 2, 'Muy útil', NOW());
 
--- 15. Logros obtenidos por usuarios
+-- 14. Logros obtenidos por usuarios
 INSERT INTO user_achievements (id, "userId", "achievementId", "dateOfAchievement") VALUES
 (1, 2, 1, '2025-04-01'),
 (2, 2, 3, '2025-04-02'),
-(3, 3, 2, '2025-04-01')
-ON CONFLICT (id) DO NOTHING;
+(3, 3, 2, '2025-04-01');
 
--- 16. Reiniciar secuencias
+-- 15. Reiniciar secuencias (opcional, para que los IDs sigan correctamente)
 SELECT setval('rol_id_seq', COALESCE((SELECT MAX(id) FROM rol), 1));
 SELECT setval('permissions_id_seq', COALESCE((SELECT MAX(id) FROM permissions), 1));
 SELECT setval('users_id_seq', COALESCE((SELECT MAX(id) FROM users), 1));

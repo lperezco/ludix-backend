@@ -1,17 +1,18 @@
 -- ======================================================
--- LUDIX - Datos iniciales (VERSIÓN FINAL CORREGIDA)
--- Incluye todos los permisos necesarios para los controladores
+-- LUDIX - DATOS INICIALES COMPLETOS (VERSIÓN FINAL)
+-- Incluye todos los permisos, incluido view_exercises para rol user
 -- ======================================================
 
 -- 1. Agregar columna description a creative_areas si no existe
 ALTER TABLE creative_areas ADD COLUMN IF NOT EXISTS description TEXT;
 
--- 3. Roles
+-- 2. Roles
 INSERT INTO rol (id, name, description) VALUES
 (1, 'admin', 'Administrador del sistema'),
-(2, 'user', 'Usuario normal');
+(2, 'user', 'Usuario normal')
+ON CONFLICT (id) DO NOTHING;
 
--- 4. Permisos (todos los necesarios, incluyendo los que usan los controladores)
+-- 3. Permisos (todos los necesarios, incluyendo view_exercises)
 INSERT INTO permissions (id, name, description) VALUES
 (1, 'create_exercise', 'Crear ejercicios'),
 (2, 'edit_exercise', 'Editar ejercicios'),
@@ -37,88 +38,100 @@ INSERT INTO permissions (id, name, description) VALUES
 (22, 'manage_comments', 'Moderar comentarios'),
 (23, 'manage_users', 'Gestionar usuarios'),
 (24, 'manage_achievements', 'Gestionar logros'),
-(25, 'view_users', 'Ver lista de usuarios'),        -- para GET /users
-(26, 'view_user', 'Ver detalle de un usuario'),     -- para GET /users/:id
-(27, 'read_users', 'Leer usuarios'),                -- alternativo
-(28, 'view_exercises', 'Ver ejercicios');           -- para GET /exercises
+(25, 'view_users', 'Ver lista de usuarios'),
+(26, 'view_user', 'Ver detalle de un usuario'),
+(27, 'read_users', 'Leer usuarios'),
+(28, 'view_exercises', 'Ver ejercicios')
+ON CONFLICT (id) DO NOTHING;
 
--- 5. Asignar TODOS los permisos al rol admin (rolId=1)
+-- 4. Asignar TODOS los permisos al rol admin (rolId=1)
 INSERT INTO "rol_permissions" ("rolId", "permissionId")
-SELECT 1, id FROM permissions;
+SELECT 1, id FROM permissions
+ON CONFLICT ("rolId", "permissionId") DO NOTHING;
 
--- 6. Asignar permisos básicos al rol user (rolId=2)
+-- 5. Asignar permisos básicos al rol user (rolId=2) – INCLUYE view_exercises (28)
 INSERT INTO "rol_permissions" ("rolId", "permissionId") VALUES
-(2, 6),  -- view_stats
-(2, 7),  -- create_comment
-(2, 8);  -- delete_comment
+(2, 6),   -- view_stats
+(2, 7),   -- create_comment
+(2, 8),   -- delete_comment
+(2, 28)   -- view_exercises (¡importante!)
+ON CONFLICT ("rolId", "permissionId") DO NOTHING;
 
--- 7. Usuarios (contraseñas hasheadas con bcrypt)
--- admin123 -> $2a$10$OL3.a6rwZHkAkb0ChQyebu8dT8FacL9OZOghOLUv6HBtyeAhbOeKq
--- user123  -> $2b$10$Lg6GkYkFZwRgVnQnXqNk9eJ9lN9qo8uLOickgx2ZMRZoMy.Mr/.cF
+-- 6. Usuarios
 INSERT INTO users (id, email, password, name, "rolId") VALUES
-(1, 'admin@ludix.com', '$2a$10$OL3.a6rwZHkAkb0ChQyebu8dT8FacL9OZOghOLUv6HBtyeAhbOeKq', 'Admin Principal', 1),
+(1, 'admin@ludix.com', '$2b$10$N9qo8uLOickgx2ZMRZoMy.Mr/.cFZJ2W8Pq7XpQoQ3WmFqR0tXxJu', 'Admin Principal', 1),
 (2, 'user1@ludix.com', '$2b$10$Lg6GkYkFZwRgVnQnXqNk9eJ9lN9qo8uLOickgx2ZMRZoMy.Mr/.cF', 'Laura Diseñadora', 2),
-(3, 'user2@ludix.com', '$2b$10$Lg6GkYkFZwRgVnQnXqNk9eJ9lN9qo8uLOickgx2ZMRZoMy.Mr/.cF', 'Carlos Ilustrador', 2);
+(3, 'user2@ludix.com', '$2b$10$Lg6GkYkFZwRgVnQnXqNk9eJ9lN9qo8uLOickgx2ZMRZoMy.Mr/.cF', 'Carlos Ilustrador', 2)
+ON CONFLICT (email) DO NOTHING;
 
--- 8. Áreas creativas
+-- 7. Áreas creativas
 INSERT INTO creative_areas (id, area, description) VALUES
 (1, 'Diseño Gráfico', 'Diseño de identidad, branding, editorial'),
 (2, 'UI/UX', 'Diseño de interfaces y experiencia de usuario'),
 (3, 'Ilustración', 'Ilustración digital y tradicional'),
 (4, 'Animación', 'Animación 2D y 3D'),
-(5, 'Diseño Industrial', 'Producto y objetos');
+(5, 'Diseño Industrial', 'Producto y objetos')
+ON CONFLICT (id) DO NOTHING;
 
--- 9. Perfiles
+-- 8. Perfiles
 INSERT INTO profiles (id, "userId", "creativeAreaId", bio, location) VALUES
 (1, 1, 1, 'Administrador y diseñador', 'Bogotá'),
 (2, 2, 2, 'Apasionada por el UX', 'Medellín'),
-(3, 3, 3, 'Ilustradora freelance', 'Cali');
+(3, 3, 3, 'Ilustradora freelance', 'Cali')
+ON CONFLICT (id) DO NOTHING;
 
--- 10. Tipos de ejercicio
+-- 9. Tipos de ejercicio
 INSERT INTO exercise_types (id, type, description) VALUES
 (1, 'Desbloqueo', 'Ejercicios para desbloquear la creatividad'),
 (2, 'Ideación', 'Técnicas para generar ideas'),
-(3, 'Pausa activa', 'Estiramientos y movimiento');
+(3, 'Pausa activa', 'Estiramientos y movimiento')
+ON CONFLICT (id) DO NOTHING;
 
--- 11. Ejercicios
+-- 10. Ejercicios
 INSERT INTO exercises (id, name, description, duration, "exerciseTypeId", "createdBy") VALUES
 (1, 'Crazy 8''s', 'Dobla una hoja en 8 partes y dibuja una idea en cada una en 8 minutos', 8, 2, 'admin'),
 (2, 'SCAMPER', 'Aplica las 7 preguntas a un objeto o idea', 10, 2, 'admin'),
 (3, 'Estiramiento de manos', 'Ejercicios para liberar tensión en muñecas y dedos', 3, 3, 'admin'),
 (4, 'Dibujo a ciegas', 'Dibuja sin mirar el papel', 5, 1, 'admin'),
 (5, 'Mapa mental', 'Crea un mapa mental sobre un tema', 12, 2, 'admin'),
-(6, 'Pausa de ojos', 'Ejercicios de enfoque visual', 2, 3, 'admin');
+(6, 'Pausa de ojos', 'Ejercicios de enfoque visual', 2, 3, 'admin')
+ON CONFLICT (id) DO NOTHING;
 
--- 12. Logros
+-- 11. Logros
 INSERT INTO achievements (id, name, description, requirement) VALUES
 (1, 'Primer comentario', 'Deja tu primer comentario', 'Crear 1 comentario'),
 (2, 'Racha de 7 días', 'Completa ejercicios 7 días seguidos', '7 días consecutivos'),
-(3, 'Explorador', 'Completa 5 ejercicios diferentes', '5 ejercicios distintos');
+(3, 'Explorador', 'Completa 5 ejercicios diferentes', '5 ejercicios distintos')
+ON CONFLICT (id) DO NOTHING;
 
--- 13. Historial de ejercicios
+-- 12. Historial de ejercicios
 INSERT INTO exercise_history (id, "userId", "exerciseId", "completedAt") VALUES
 (1, 2, 1, '2025-04-01'),
 (2, 2, 3, '2025-04-02'),
-(3, 3, 2, '2025-04-01');
+(3, 3, 2, '2025-04-01')
+ON CONFLICT (id) DO NOTHING;
 
--- 14. Favoritos
+-- 13. Favoritos
 INSERT INTO favorites (id, "userId", "exerciseId") VALUES
 (1, 2, 1),
 (2, 2, 3),
-(3, 3, 2);
+(3, 3, 2)
+ON CONFLICT (id) DO NOTHING;
 
--- 15. Comentarios (opcional - descomentar si se necesitan)
+-- 14. Comentarios
 INSERT INTO comments (id, "userId", "exerciseId", content, "createdAt") VALUES
 (1, 2, 1, 'Excelente ejercicio', NOW()),
-(2, 3, 2, 'Muy útil', NOW());
+(2, 3, 2, 'Muy útil', NOW())
+ON CONFLICT (id) DO NOTHING;
 
--- 16. Logros obtenidos por usuarios
+-- 15. Logros obtenidos por usuarios
 INSERT INTO user_achievements (id, "userId", "achievementId", "dateOfAchievement") VALUES
 (1, 2, 1, '2025-04-01'),
 (2, 2, 3, '2025-04-02'),
-(3, 3, 2, '2025-04-01');
+(3, 3, 2, '2025-04-01')
+ON CONFLICT (id) DO NOTHING;
 
--- 17. Reiniciar secuencias (para que los IDs sigan correctamente)
+-- 16. Reiniciar secuencias
 SELECT setval('rol_id_seq', COALESCE((SELECT MAX(id) FROM rol), 1));
 SELECT setval('permissions_id_seq', COALESCE((SELECT MAX(id) FROM permissions), 1));
 SELECT setval('users_id_seq', COALESCE((SELECT MAX(id) FROM users), 1));

@@ -12,7 +12,7 @@ async function bootstrap() {
       'http://localhost:3000',
       'http://localhost:3001',
       'http://localhost:3002',
-      'https://ludix-frontend.vercel.app',
+      'https://ludix-frontend.onrender.com',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
@@ -67,7 +67,6 @@ Para usar los endpoints protegidos, primero debes:
     },
   });
 
-  // ✅ Usar puerto dinámico para Railway
   await app.listen(process.env.PORT ?? 3000);
   console.log(`Aplicación corriendo en: http://localhost:${process.env.PORT ?? 3000}`);
   console.log(`Documentación Swagger en: http://localhost:${process.env.PORT ?? 3000}/api`);

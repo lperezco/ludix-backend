@@ -51,7 +51,7 @@ INSERT INTO "rol_permissions" ("rolId", "permissionId") VALUES
 
 -- 5. Usuarios
 INSERT INTO users (id, email, password, name, "rolId") VALUES
-(1, 'admin@ludix.com', '$2b$10$N9qo8uLOickgx2ZMRZoMy.Mr/.cFZJ2W8Pq7XpQoQ3WmFqR0tXxJu', 'Admin Principal', 1),
+(1, 'admin@ludix.com', '$2b$10$pLnuozF0IUKQCd4QgVdwg.ZlylGgyj27YICJU9LAKNYC8G4dlTPhq', 'Admin Principal', 1),
 (2, 'user1@ludix.com', '$2b$10$Lg6GkYkFZwRgVnQnXqNk9eJ9lN9qo8uLOickgx2ZMRZoMy.Mr/.cF', 'Laura Diseñadora', 2),
 (3, 'user2@ludix.com', '$2b$10$Lg6GkYkFZwRgVnQnXqNk9eJ9lN9qo8uLOickgx2ZMRZoMy.Mr/.cF', 'Carlos Ilustrador', 2);
 

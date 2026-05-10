@@ -21,16 +21,26 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
+    console.log('1. Intentando login con email:', email);
 
     const user = await this.usersService.findByEmail(email, true);
+    console.log('2. Usuario encontrado:', user ? user.email : 'NO ENCONTRADO');
     if (!user) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
+    console.log(
+      '3. Hash guardado (primeros 20 chars):',
+      user.password.substring(0, 20),
+    );
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    console.log('4. Contraseña válida?:', isPasswordValid);
+
     if (!isPasswordValid) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
-    
+
     const { password: _, ...result } = user;
     return result;
   }

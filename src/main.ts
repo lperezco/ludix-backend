@@ -6,13 +6,16 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  //(HABILITAR CORS)
+  // HABILITAR CORS para desarrollo y producción
   app.enableCors({
     origin: [
       'http://localhost:3000',
       'http://localhost:3001',
       'http://localhost:3002',
-      'https://ludix-frontend.onrender.com',
+      'https://ludix-frontend.vercel.app',    // Frontend en Vercel
+      'https://ludix-frontend-git-main.vercel.app', // Preview de Vercel
+      /\.vercel\.app$/,                       // Cualquier subdominio de Vercel
+      'https://ludix-backend.up.railway.app', // Backend en Railway (lo sabremos después)
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
@@ -67,6 +70,7 @@ Para usar los endpoints protegidos, primero debes:
     },
   });
 
+  // Railway asigna el puerto automáticamente con PORT
   await app.listen(process.env.PORT ?? 3000);
   console.log(`Aplicación corriendo en: http://localhost:${process.env.PORT ?? 3000}`);
   console.log(`Documentación Swagger en: http://localhost:${process.env.PORT ?? 3000}/api`);

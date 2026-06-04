@@ -35,6 +35,9 @@ export class Exercise {
   @Column({ nullable: true })
   createdBy: string;
 
+  @Column({ type: 'text', nullable: true })
+  instructions: string;
+
   @OneToMany(() => Favorite, (fav) => fav.exercise)
   favorites: Favorite[];
 

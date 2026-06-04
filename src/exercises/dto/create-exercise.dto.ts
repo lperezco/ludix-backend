@@ -33,4 +33,8 @@ export class CreateExerciseDto {
   @IsOptional()
   @IsString()
   createdBy?: string;
+
+  @IsOptional()
+  @IsString()
+  instructions?: string;
 }

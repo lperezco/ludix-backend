@@ -24,4 +24,8 @@ export class UpdateExerciseDto {
   @IsOptional()
   @IsString()
   createdBy?: string;
+
+  @IsOptional()
+  @IsString()
+  instructions?: string;
 }

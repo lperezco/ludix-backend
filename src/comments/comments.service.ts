@@ -26,6 +26,8 @@ export class CommentsService {
   async create(createCommentDto: CreateCommentDto): Promise<Comment> {
     const { userId, exerciseId, content, parentCommentId } = createCommentDto;
 
+    console.log(`📝 Creando comentario - userId: ${userId}, exerciseId: ${exerciseId}`);
+
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
@@ -35,8 +37,7 @@ export class CommentsService {
       where: { id: exerciseId },
     });
     if (!exercise) {
-      throw new NotFoundException(`
-        Ejercicio con ID ${exerciseId} no encontrado`);
+      throw new NotFoundException(`Ejercicio con ID ${exerciseId} no encontrado`);
     }
 
     if (parentCommentId) {
@@ -58,10 +59,11 @@ export class CommentsService {
     });
 
     const savedComment = await this.commentRepository.save(comment);
+    console.log(`✅ Comentario guardado con ID: ${savedComment.id}`);
 
-    // 🎯 Otorgar logro "Primer comentario" (no bloquea la creación del comentario)
+    // Otorgar logro "Primer comentario" (no bloquea la creación)
     this.grantFirstCommentAchievement(userId).catch((error) => {
-      console.error('Error al otorgar logro de comentario:', error);
+      console.error('❌ Error no bloqueante al otorgar logro:', error);
     });
 
     return savedComment;
@@ -72,65 +74,56 @@ export class CommentsService {
    */
   private async grantFirstCommentAchievement(userId: number): Promise<void> {
     try {
-      // Contar cuántos comentarios ha hecho el usuario
+      console.log(`🔍 [LOGRO] Verificando primer comentario para usuario ${userId}`);
+
+      // 1. Contar comentarios del usuario
       const commentCount = await this.commentRepository.count({
         where: { userId },
       });
+      console.log(`📊 [LOGRO] Usuario ${userId} tiene ${commentCount} comentario(s)`);
 
-      // Si es el primer comentario (count === 1 después de guardar)
-      if (commentCount !== 1) return;
-
-      // Buscar el logro "Primer comentario" en la tabla achievements
-      const achievement = await this.getAchievementByName('Primer comentario');
-      if (!achievement) {
-        console.warn('⚠️ No se encontró el logro "Primer comentario" en la BD');
+      // 2. Si no es el primer comentario, salir
+      if (commentCount !== 1) {
+        console.log(`⏭️ [LOGRO] No es el primer comentario (tiene ${commentCount})`);
         return;
       }
 
-      // Verificar si ya tiene el logro
-      const existing = await this.getUserAchievement(userId, achievement.id);
-      if (existing) return;
+      // 3. Buscar el logro "Primer comentario"
+      const achievementResult = await this.commentRepository.manager.query(
+        `SELECT id FROM achievements WHERE name = $1 LIMIT 1`,
+        ['Primer comentario'],
+      );
 
-      // Otorgar el logro usando query directa (evita dependencias circulares)
-      await this.grantAchievement(userId, achievement.id);
-      console.log(`🎉 Logro "Primer comentario" otorgado al usuario ${userId}`);
+      if (!achievementResult || achievementResult.length === 0) {
+        console.warn('⚠️ [LOGRO] No se encontró el logro "Primer comentario" en la BD');
+        return;
+      }
+
+      const achievementId = achievementResult[0].id;
+      console.log(`🏆 [LOGRO] Logro "Primer comentario" encontrado con ID: ${achievementId}`);
+
+      // 4. Verificar si ya tiene el logro
+      const existingResult = await this.commentRepository.manager.query(
+        `SELECT id FROM user_achievements WHERE "userId" = $1 AND "achievementId" = $2 LIMIT 1`,
+        [userId, achievementId],
+      );
+
+      if (existingResult && existingResult.length > 0) {
+        console.log(`✅ [LOGRO] Usuario ${userId} ya tiene este logro`);
+        return;
+      }
+
+      // 5. Otorgar el logro
+      await this.commentRepository.manager.query(
+        `INSERT INTO user_achievements ("userId", "achievementId", "dateOfAchievement")
+         VALUES ($1, $2, NOW())`,
+        [userId, achievementId],
+      );
+
+      console.log(`🎉🎉🎉 [LOGRO] ¡LOGRO OTORGADO! "Primer comentario" al usuario ${userId}`);
     } catch (error) {
-      console.error('Error en grantFirstCommentAchievement:', error);
+      console.error('❌ [LOGRO] Error en grantFirstCommentAchievement:', error);
     }
-  }
-
-  /**
-   * Busca un logro por nombre usando query directa
-   */
-  private async getAchievementByName(name: string): Promise<any> {
-    const result = await this.commentRepository.manager.query(
-      `SELECT id FROM achievements WHERE name = $1 LIMIT 1`,
-      [name],
-    );
-    return result[0];
-  }
-
-  /**
-   * Verifica si el usuario ya tiene un logro
-   */
-  private async getUserAchievement(userId: number, achievementId: number): Promise<any> {
-    const result = await this.commentRepository.manager.query(
-      `SELECT id FROM user_achievements WHERE "userId" = $1 AND "achievementId" = $2 LIMIT 1`,
-      [userId, achievementId],
-    );
-    return result[0];
-  }
-
-  /**
-   * Otorga un logro a un usuario
-   */
-  private async grantAchievement(userId: number, achievementId: number): Promise<void> {
-    await this.commentRepository.manager.query(
-      `INSERT INTO user_achievements ("userId", "achievementId", "dateOfAchievement")
-       VALUES ($1, $2, NOW())
-       ON CONFLICT DO NOTHING`,
-      [userId, achievementId],
-    );
   }
 
   async findAll(): Promise<Comment[]> {
@@ -156,8 +149,7 @@ export class CommentsService {
       where: { id: exerciseId },
     });
     if (!exercise) {
-      throw new NotFoundException(`
-        Ejercicio con ID ${exerciseId} no encontrado`);
+      throw new NotFoundException(`Ejercicio con ID ${exerciseId} no encontrado`);
     }
     return this.commentRepository.find({
       where: { exerciseId, parentCommentId: IsNull() },
@@ -185,9 +177,7 @@ export class CommentsService {
     await this.findById(id);
     const { content } = updateCommentDto;
     if (!content) {
-      throw new BadRequestException(
-        'El contenido es requerido para actualizar',
-      );
+      throw new BadRequestException('El contenido es requerido para actualizar');
     }
     await this.commentRepository.update(id, { content });
     return this.findById(id);

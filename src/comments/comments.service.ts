@@ -57,7 +57,80 @@ export class CommentsService {
       parentCommentId,
     });
 
-    return this.commentRepository.save(comment);
+    const savedComment = await this.commentRepository.save(comment);
+
+    // 🎯 Otorgar logro "Primer comentario" (no bloquea la creación del comentario)
+    this.grantFirstCommentAchievement(userId).catch((error) => {
+      console.error('Error al otorgar logro de comentario:', error);
+    });
+
+    return savedComment;
+  }
+
+  /**
+   * Otorga el logro "Primer comentario" al usuario si es su primer comentario
+   */
+  private async grantFirstCommentAchievement(userId: number): Promise<void> {
+    try {
+      // Contar cuántos comentarios ha hecho el usuario
+      const commentCount = await this.commentRepository.count({
+        where: { userId },
+      });
+
+      // Si es el primer comentario (count === 1 después de guardar)
+      if (commentCount !== 1) return;
+
+      // Buscar el logro "Primer comentario" en la tabla achievements
+      const achievement = await this.getAchievementByName('Primer comentario');
+      if (!achievement) {
+        console.warn('⚠️ No se encontró el logro "Primer comentario" en la BD');
+        return;
+      }
+
+      // Verificar si ya tiene el logro
+      const existing = await this.getUserAchievement(userId, achievement.id);
+      if (existing) return;
+
+      // Otorgar el logro usando query directa (evita dependencias circulares)
+      await this.grantAchievement(userId, achievement.id);
+      console.log(`🎉 Logro "Primer comentario" otorgado al usuario ${userId}`);
+    } catch (error) {
+      console.error('Error en grantFirstCommentAchievement:', error);
+    }
+  }
+
+  /**
+   * Busca un logro por nombre usando query directa
+   */
+  private async getAchievementByName(name: string): Promise<any> {
+    const result = await this.commentRepository.manager.query(
+      `SELECT id FROM achievements WHERE name = $1 LIMIT 1`,
+      [name],
+    );
+    return result[0];
+  }
+
+  /**
+   * Verifica si el usuario ya tiene un logro
+   */
+  private async getUserAchievement(userId: number, achievementId: number): Promise<any> {
+    const result = await this.commentRepository.manager.query(
+      `SELECT id FROM user_achievements WHERE "userId" = $1 AND "achievementId" = $2 LIMIT 1`,
+      [userId, achievementId],
+    );
+    return result[0];
+  }
+
+  /**
+   * Otorga un logro a un usuario
+   */
+  private async grantAchievement(userId: number, achievementId: number): Promise<void> {
+    await this.commentRepository.manager.query(
+      `INSERT INTO user_achievements ("userId", "achievementId", "dateOfAchievement")
+       VALUES ($1, $2, NOW())
+       ON CONFLICT DO NOTHING`,
+      [userId, achievementId],
+    );
   }
 
   async findAll(): Promise<Comment[]> {

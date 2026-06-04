@@ -93,7 +93,7 @@ export class ExerciseHistoryController {
    * GET /exercise-history/user/:userId
    */
   @Get('user/:userId')
-  @Permissions('manage_users')
+  @Permissions('view_stats')
   @HttpCode(HttpStatus.OK)
   async findByUser(
     @Param('userId', ParseIntPipe) userId: number,

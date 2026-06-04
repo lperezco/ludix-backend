@@ -24,14 +24,14 @@ export class AchievementsController {
   constructor(private readonly achievementsService: AchievementsService) {}
 
   @Get()
-  @Permissions('manage_achievements')
+  @Permissions('view_achievements')  // 👈 CAMBIADO: permiso de lectura
   @HttpCode(HttpStatus.OK)
   findAll() {
     return this.achievementsService.findAll();
   }
 
   @Get(':id')
-  @Permissions('manage_achievements')
+  @Permissions('view_achievements')  // 👈 CAMBIADO
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.achievementsService.findById(id);

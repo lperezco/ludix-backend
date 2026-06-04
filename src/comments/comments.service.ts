@@ -11,6 +11,8 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { User } from '../users/entities/user.entity';
 import { Exercise } from '../exercises/entities/exercise.entity';
 import { IsNull } from 'typeorm';
+import { UserAchievement } from '../user-achievements/entities/user-achievement.entity';
+import { Achievement } from '../achievements/entities/achievement.entity';
 
 @Injectable()
 export class CommentsService {
@@ -21,6 +23,10 @@ export class CommentsService {
     private userRepository: Repository<User>,
     @InjectRepository(Exercise)
     private exerciseRepository: Repository<Exercise>,
+    @InjectRepository(UserAchievement)
+    private userAchievementRepository: Repository<UserAchievement>,
+    @InjectRepository(Achievement)
+    private achievementRepository: Repository<Achievement>,
   ) {}
 
   async create(createCommentDto: CreateCommentDto): Promise<Comment> {
@@ -57,7 +63,42 @@ export class CommentsService {
       parentCommentId,
     });
 
-    return this.commentRepository.save(comment);
+    const savedComment = await this.commentRepository.save(comment);
+
+    // 🎯 OTORGAR LOGRO: Primer comentario
+    try {
+      // Buscar el logro "Primer comentario"
+      const firstCommentAchievement = await this.achievementRepository.findOne({
+        where: { name: 'Primer comentario' },
+      });
+
+      if (firstCommentAchievement) {
+        // Verificar si el usuario ya tiene este logro
+        const existingAchievement = await this.userAchievementRepository.findOne({
+          where: {
+            userId,
+            achievementId: firstCommentAchievement.id,
+          },
+        });
+
+        if (!existingAchievement) {
+          // Otorgar el logro
+          await this.userAchievementRepository.save({
+            userId,
+            achievementId: firstCommentAchievement.id,
+            dateOfAchievement: new Date(),
+          });
+          console.log(`🎉 Logro "Primer comentario" otorgado al usuario ${userId}`);
+        }
+      } else {
+        console.warn('No se encontró el logro "Primer comentario" en la base de datos');
+      }
+    } catch (error) {
+      // No debe romper la creación del comentario si falla el logro
+      console.error('Error al otorgar logro de comentario:', error);
+    }
+
+    return savedComment;
   }
 
   async findAll(): Promise<Comment[]> {

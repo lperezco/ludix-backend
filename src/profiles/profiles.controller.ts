@@ -11,6 +11,7 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { PermissionsGuard } from '../common/guards/permissions.guard';

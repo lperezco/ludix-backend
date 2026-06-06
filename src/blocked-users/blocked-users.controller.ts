@@ -88,7 +88,7 @@ export class BlockedUsersController {
   }
 
   @Get('check/:userId')
-  @Permissions('block_user')
+  @Permissions('check_block_status')
   @HttpCode(HttpStatus.OK)
   async isUserBlocked(@Param('userId', ParseIntPipe) userId: number) {
     const isBlocked = await this.blockedUsersService.isUserBlocked(userId);

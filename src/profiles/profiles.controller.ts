@@ -46,11 +46,10 @@ export class ProfilesController {
   }
 
   @Post()
+  @Permissions('create_profile')
   @HttpCode(HttpStatus.CREATED)
-  async create(@Req() req: any, @Body() createProfileDto: CreateProfileDto) {
-    // Forzar que el userId sea el del token (más seguro)
-    const userId = req.user.id;
-    return this.profilesService.create({ ...createProfileDto, userId });
+  create(@Body() createProfileDto: CreateProfileDto) {
+    return this.profilesService.create(createProfileDto);
   }
 
   @Put(':id')

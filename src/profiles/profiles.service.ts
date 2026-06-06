@@ -69,7 +69,7 @@ export class ProfilesService {
   async findById(id: number): Promise<Profile> {
     const profile = await this.profileRepository.findOne({
       where: { id },
-      // Sin relaciones para evitar errores
+      relations: ['creativeArea'],
     });
     if (!profile) {
       throw new NotFoundException(`Perfil con ID ${id} no encontrado`);
@@ -80,6 +80,7 @@ export class ProfilesService {
   async findByUserId(userId: number): Promise<Profile> {
     const profile = await this.profileRepository.findOne({
       where: { userId },
+      relations: ['creativeArea'],
     });
     if (!profile) {
       throw new NotFoundException(`Perfil para usuario con ID ${userId} no encontrado`);

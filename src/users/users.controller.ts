@@ -31,7 +31,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Permissions('manage_users')
+  @Permissions('view_public_profile')
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findById(id);

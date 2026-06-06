@@ -61,9 +61,14 @@ export class CommentsService {
     const savedComment = await this.commentRepository.save(comment);
     console.log(`✅ Comentario guardado con ID: ${savedComment.id}`);
 
-    // Otorgar logro "Primer comentario" (no bloquea la creación)
+    // Otorgar logro "Primer comentario" (solo si es el primero)
     this.grantFirstCommentAchievement(userId).catch((error) => {
       console.error('❌ Error no bloqueante al otorgar logro:', error);
+    });
+
+    // Otorgar logros por cantidad de comentarios
+    this.grantCommentAchievements(userId).catch((error) => {
+      console.error('❌ Error no bloqueante al otorgar logros de comentarios:', error);
     });
 
     return savedComment;
@@ -123,6 +128,68 @@ export class CommentsService {
       console.log(`🎉🎉🎉 [LOGRO] ¡LOGRO OTORGADO! "Primer comentario" al usuario ${userId}`);
     } catch (error) {
       console.error('❌ [LOGRO] Error en grantFirstCommentAchievement:', error);
+    }
+  }
+
+  /**
+   * Otorga logros relacionados con la cantidad de comentarios
+   */
+  private async grantCommentAchievements(userId: number): Promise<void> {
+    try {
+      console.log(`🏆 [LOGROS COMENTARIOS] Verificando para usuario ${userId}`);
+
+      // Contar comentarios totales del usuario
+      const totalComments = await this.commentRepository.count({
+        where: { userId }
+      });
+      console.log(`📊 Total comentarios: ${totalComments}`);
+
+      // Logro "Conversador" (5 comentarios)
+      if (totalComments >= 5) {
+        await this.grantAchievement(userId, 6, 'Conversador');
+      }
+
+      // Logro "Crítico" (10 comentarios)
+      if (totalComments >= 10) {
+        await this.grantAchievement(userId, 7, 'Crítico');
+      }
+
+      // Logro "Experto" (20 comentarios)
+      if (totalComments >= 20) {
+        await this.grantAchievement(userId, 8, 'Experto');
+      }
+
+    } catch (error) {
+      console.error('❌ Error en grantCommentAchievements:', error);
+    }
+  }
+
+  /**
+   * Método auxiliar para otorgar un logro específico
+   */
+  private async grantAchievement(userId: number, achievementId: number, name: string): Promise<void> {
+    try {
+      // Verificar si ya tiene el logro
+      const existing = await this.commentRepository.manager.query(
+        `SELECT id FROM user_achievements WHERE "userId" = $1 AND "achievementId" = $2 LIMIT 1`,
+        [userId, achievementId]
+      );
+
+      if (existing && existing.length > 0) {
+        console.log(`⏭️ Usuario ${userId} ya tiene el logro "${name}"`);
+        return;
+      }
+
+      // Otorgar logro
+      await this.commentRepository.manager.query(
+        `INSERT INTO user_achievements ("userId", "achievementId", "dateOfAchievement")
+         VALUES ($1, $2, NOW())`,
+        [userId, achievementId]
+      );
+
+      console.log(`🎉 ¡LOGRO OTORGADO! "${name}" al usuario ${userId}`);
+    } catch (error) {
+      console.error(`❌ Error al otorgar logro "${name}":`, error);
     }
   }
 

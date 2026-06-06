@@ -27,14 +27,14 @@ export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
   @Get()
-  @Permissions('manage_comments')   // antes 'read_comment'
+  @Permissions('manage_comments') // antes 'read_comment'
   @ApiOperation({ summary: 'Obtener todos los comentarios' })
   findAll() {
     return this.commentsService.findAll();
   }
 
   @Get('exercise/:exerciseId')
-  @Permissions('manage_comments')   // antes 'read_comment'
+  @Permissions('view_comments')   // antes 'read_comment'
   @ApiOperation({ summary: 'Obtener comentarios por ejercicio' })
   findByExercise(@Param('exerciseId', ParseIntPipe) exerciseId: number) {
     return this.commentsService.findByExercise(exerciseId);

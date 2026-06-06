@@ -45,7 +45,7 @@ export class UsersController {
   }
 
   @Put(':id')
-  @Permissions('manage_users')
+  @Permissions('edit_own_profile')
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id', ParseIntPipe) id: number,

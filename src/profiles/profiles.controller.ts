@@ -53,12 +53,14 @@ export class ProfilesController {
   }
 
   @Put(':id')
-  @Permissions('manage_users')
+  @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateProfileDto: UpdateProfileDto,
-  ) {
+  async update(@Req() req: any, @Param('id', ParseIntPipe) id: number, @Body() updateProfileDto: UpdateProfileDto) {
+    // Primero obtener el perfil para verificar que pertenece al usuario
+    const profile = await this.profilesService.findById(id);
+    if (profile.userId !== req.user.id) {
+      throw new UnauthorizedException('No puedes editar el perfil de otro usuario');
+    }
     return this.profilesService.update(id, updateProfileDto);
   }
 

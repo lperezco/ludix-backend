@@ -43,14 +43,15 @@ export class UsersController {
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
-
+  
   @Put(':id')
-  @Permissions('edit_own_profile')
+  @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
+  async update(@Req() req: any, @Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
+    // Verificar que el usuario solo pueda editar su propio perfil
+    if (req.user.id !== id) {
+      throw new UnauthorizedException('No puedes editar el perfil de otro usuario');
+    }
     return this.usersService.update(id, updateUserDto);
   }
 

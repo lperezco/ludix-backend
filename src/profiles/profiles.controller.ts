@@ -10,6 +10,7 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { PermissionsGuard } from '../common/guards/permissions.guard';
@@ -45,10 +46,11 @@ export class ProfilesController {
   }
 
   @Post()
-  @Permissions('manage_users')
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createProfileDto: CreateProfileDto) {
-    return this.profilesService.create(createProfileDto);
+  async create(@Req() req: any, @Body() createProfileDto: CreateProfileDto) {
+    // Forzar que el userId sea el del token (más seguro)
+    const userId = req.user.id;
+    return this.profilesService.create({ ...createProfileDto, userId });
   }
 
   @Put(':id')

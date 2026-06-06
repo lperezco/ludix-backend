@@ -32,7 +32,133 @@ export class ExerciseHistoryService {
     }
 
     const history = this.exerciseHistoryRepository.create({ userId, exerciseId, completedAt });
-    return await this.exerciseHistoryRepository.save(history);
+    const savedHistory = await this.exerciseHistoryRepository.save(history);
+
+    // 👇 Otorgar logros relacionados con ejercicios (no bloquea la creación)
+    this.grantExerciseAchievements(userId).catch(error => {
+      console.error('❌ Error al otorgar logros de ejercicios:', error);
+    });
+
+    return savedHistory;
+  }
+
+  /**
+   * Otorga logros relacionados con la finalización de ejercicios
+   */
+  private async grantExerciseAchievements(userId: number): Promise<void> {
+    try {
+      console.log(`🏆 [LOGROS] Verificando logros para usuario ${userId}`);
+
+      // 1. Total de ejercicios completados por el usuario
+      const totalCompletions = await this.exerciseHistoryRepository.count({
+        where: { userId }
+      });
+      console.log(`📊 Total ejercicios completados: ${totalCompletions}`);
+
+      // 2. Ejercicios únicos (diferentes) completados
+      const uniqueExercises = await this.exerciseHistoryRepository
+        .createQueryBuilder('history')
+        .select('DISTINCT history.exerciseId')
+        .where('history.userId = :userId', { userId })
+        .getRawMany();
+      
+      const uniqueCount = uniqueExercises.length;
+      console.log(`📊 Ejercicios únicos completados: ${uniqueCount}`);
+
+      // 3. Otorgar logro "Primer ejercicio" (ID 4)
+      if (totalCompletions >= 1) {
+        await this.grantAchievement(userId, 4, 'Primer ejercicio');
+      }
+
+      // 4. Otorgar logro "Explorador" (ID 3) - 5 ejercicios diferentes
+      if (uniqueCount >= 5) {
+        await this.grantAchievement(userId, 3, 'Explorador');
+      }
+
+      // 5. Otorgar logro "Maestro creativo" (ID 5) - 20 ejercicios total
+      if (totalCompletions >= 20) {
+        await this.grantAchievement(userId, 5, 'Maestro creativo');
+      }
+
+      // 6. Verificar racha de 7 días
+      await this.checkStreakAchievement(userId);
+
+    } catch (error) {
+      console.error('❌ Error en grantExerciseAchievements:', error);
+    }
+  }
+
+  /**
+   * Método auxiliar para otorgar un logro específico
+   */
+  private async grantAchievement(userId: number, achievementId: number, name: string): Promise<void> {
+    try {
+      // Verificar si ya tiene el logro
+      const existing = await this.exerciseHistoryRepository.manager.query(
+        `SELECT id FROM user_achievements WHERE "userId" = $1 AND "achievementId" = $2 LIMIT 1`,
+        [userId, achievementId]
+      );
+
+      if (existing && existing.length > 0) {
+        console.log(`⏭️ Usuario ${userId} ya tiene el logro "${name}"`);
+        return;
+      }
+
+      // Otorgar logro
+      await this.exerciseHistoryRepository.manager.query(
+        `INSERT INTO user_achievements ("userId", "achievementId", "dateOfAchievement")
+         VALUES ($1, $2, NOW())`,
+        [userId, achievementId]
+      );
+
+      console.log(`🎉 ¡LOGRO OTORGADO! "${name}" al usuario ${userId}`);
+    } catch (error) {
+      console.error(`❌ Error al otorgar logro "${name}":`, error);
+    }
+  }
+
+  /**
+   * Verifica y otorga el logro de racha de 7 días (ID 2)
+   */
+  private async checkStreakAchievement(userId: number): Promise<void> {
+    try {
+      // Obtener historial de ejercicios completados
+      const history = await this.exerciseHistoryRepository.find({
+        where: { userId },
+        order: { completedAt: 'DESC' }
+      });
+
+      if (history.length === 0) return;
+
+      // Calcular racha actual
+      let streak = 0;
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+      
+      const uniqueDates = [...new Set(history.map(h => 
+        new Date(h.completedAt).toDateString()
+      ))];
+
+      for (let i = 0; i < uniqueDates.length; i++) {
+        const date = new Date(uniqueDates[i]);
+        const expectedDate = new Date(currentDate);
+        expectedDate.setDate(currentDate.getDate() - i);
+        
+        if (date.toDateString() === expectedDate.toDateString()) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+
+      console.log(`📊 Racha actual del usuario ${userId}: ${streak} días`);
+
+      if (streak >= 7) {
+        await this.grantAchievement(userId, 2, 'Racha de 7 días');
+      }
+    } catch (error) {
+      console.error('❌ Error en checkStreakAchievement:', error);
+    }
   }
 
   async findAll(
